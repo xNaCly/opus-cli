@@ -3,6 +3,7 @@ pub enum ArgumentType {
     DELETE,
     COMPLETE,
     UKNOWN,
+    NOTENOUGH
 }
 
 pub struct Argument {

@@ -9,20 +9,22 @@ pub fn parse_cli(args: Vec<String>) -> Cli {
             task_priority: -1,
         },
     };
-    match args[1].as_str() {
-        "add" => {
-            r.top_level_arg = ArgumentType::ADD;
+    if args.len() <= 1 {
+        r.top_level_arg = ArgumentType::NOTENOUGH;
+    } else {
+        match args[1].as_str() {
+            "add" =>  r.top_level_arg = ArgumentType::ADD,
+            "finish" => r.top_level_arg = ArgumentType::COMPLETE,
+            "delete" => r.top_level_arg = ArgumentType::DELETE,
+            _ => r.top_level_arg = ArgumentType::UKNOWN,
         }
-        "finish" => {
-            r.top_level_arg = ArgumentType::COMPLETE;
-        }
-        "delete" => {
-            r.top_level_arg = ArgumentType::DELETE;
-        }
-        _ => panic!(
-            "Unknown Argument '{}', run 'opus help' for more info on command syntax",
-            args[1].to_string()
-        ),
     }
+
+    match r.top_level_arg {
+        ArgumentType::UKNOWN => panic!("Unknown Argument '{}', run 'opus help' for more info on command syntax.", args[1].to_string()),
+        ArgumentType::NOTENOUGH => panic!("Not enough Arguments."),
+        _ => {},
+    }
+
     return r;
 }
