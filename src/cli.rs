@@ -13,9 +13,9 @@ pub fn parse_cli(args: Vec<String>) -> Cli {
         r.top_level_arg = ArgumentType::NOTENOUGH;
     } else {
         match args[1].as_str() {
-            "add" =>  r.top_level_arg = ArgumentType::ADD,
-            "finish" => r.top_level_arg = ArgumentType::COMPLETE,
-            "delete" => r.top_level_arg = ArgumentType::DELETE,
+            "add" | "a" =>  r.top_level_arg = ArgumentType::ADD,
+            "finish" | "f" => r.top_level_arg = ArgumentType::COMPLETE,
+            "delete" | "d" => r.top_level_arg = ArgumentType::DELETE,
             _ => r.top_level_arg = ArgumentType::UKNOWN,
         }
     }
