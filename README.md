@@ -11,23 +11,28 @@ cli todo tool - add, edit, tag and delete tasks
 ### Add a task
 
 ```
-opus add "update excelsheet @work !!!"
-          ^^^^^^^^^^^^^^^^^ ^^^^^ ^^^
+opus add "update excelsheet #work @tomorrow ,,,"
+          ^^^^^^^^^^^^^^^^^ ^^^^^ ^^^^^^^^^ ^^^
+          |                 |     |         |
+          |                 |     |         |_ priority
           |                 |     |
-          |                 |     |_ priority = amount of '!'
+          |                 |     |_ due date
           |                 |
-          |                 |_ tag prefixed with '@'
-          |
-          |_ title of the task
+          |                 |_ tag
+          |_ title
 ```
+
+-   tags are prefixed with a `#` and should contain `\_` instead of spaces.
+-   due date is prefixed with a `@` and can either be `@today`, `@tomorrow` or a date (`yyyy-mm-dd`)
+-   priority is specified using `,` - highest priority is one `,`
 
 ### List tasks
 
 ```bash
 opus list
-opus list @work   # List all tasks with tag work (@work):
-opus list !!      # List all tasks with priority !! (2):
-opus list .2      # List task with id 2
+opus list "#work"   # List all tasks with tag work (#work):
+opus list ",,"      # List all tasks with priority !! (2):
+opus list .2        # List task with id 2
 ```
 
 ## Contributing

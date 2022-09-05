@@ -19,12 +19,15 @@ impl std::fmt::Display for ArgumentType {
     }
 }
 
+#[derive(Debug)]
 pub struct Argument {
     pub task_content: String,
     pub task_tag: String,
-    pub task_priority: i8,
+    pub task_priority: usize,
+    pub task_due: String,
 }
 
+#[derive(Debug)]
 pub struct Cli {
     pub top_level_arg: ArgumentType,
     pub arg: Argument,
