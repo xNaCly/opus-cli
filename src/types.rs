@@ -20,15 +20,30 @@ impl std::fmt::Display for ArgumentType {
 }
 
 #[derive(Debug)]
-pub struct Argument {
-    pub task_content: String,
-    pub task_tag: String,
-    pub task_priority: usize,
-    pub task_due: String,
+pub struct InputTask {
+    pub title: String,
+    pub tag: String,
+    pub priority: usize,
+    pub due: String,
+}
+
+#[derive(Debug)]
+pub struct CliInput {
+    pub task: Option<InputTask>,
+    pub query: Option<String>,
+}
+
+#[derive(Debug)]
+pub struct Task {
+    pub title: String,
+    pub tag: String,
+    pub priority: usize,
+    pub due: String,
+    pub id: usize,
 }
 
 #[derive(Debug)]
 pub struct Cli {
     pub top_level_arg: ArgumentType,
-    pub arg: Argument,
+    pub input: CliInput,
 }

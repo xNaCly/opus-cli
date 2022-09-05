@@ -1,7 +1,7 @@
-use crate::types::{Argument, ArgumentType, Cli};
+use crate::types::{ArgumentType, Cli, CliInput, InputTask};
 
 /// Converts commandline arguments into machine readable format
-/// 
+///
 ///```bash
 ///opus add "update excel #work @tomorrow |||"
 ///```
@@ -11,13 +11,12 @@ use crate::types::{Argument, ArgumentType, Cli};
 pub fn parse_cli(args: Vec<String>) -> Cli {
     let mut r: Cli = Cli {
         top_level_arg: ArgumentType::UNKNOWN,
-        arg: Argument {
-            task_content: "".to_string(),
-            task_tag: "".to_string(),
-            task_priority: 0,
-            task_due: "".to_string(),
+        input: CliInput {
+            task: None,
+            query: None,
         },
     };
+
     if args.len() <= 2 {
         r.top_level_arg = ArgumentType::NOTENOUGH;
     } else {
@@ -40,21 +39,32 @@ pub fn parse_cli(args: Vec<String>) -> Cli {
 
     let task: Vec<&str> = args[2].split(" ").collect();
 
-    let mut i = 0;
-    for x in &task {
-        match x.chars().nth(0).unwrap() {
-            '#' => r.arg.task_tag = x.to_string(),
-            '@' => r.arg.task_due = x.to_string(),
-            '|' => r.arg.task_priority = x.len(),
-            _ => {
-                if i != 0 {
-                    r.arg.task_content.push_str(" ");
+    match r.top_level_arg {
+        ArgumentType::ADD => {
+            let mut arg = InputTask {
+                title: "".to_string(),
+                tag: "".to_string(),
+                priority: 0,
+                due: "".to_string(),
+            };
+            let mut i = 0;
+            for x in &task {
+                match x.chars().nth(0).unwrap() {
+                    '#' => arg.tag = x.to_string(),
+                    '@' => arg.due = x.to_string(),
+                    '|' => arg.priority = x.len(),
+                    _ => {
+                        if i != 0 {
+                            arg.title.push_str(" ");
+                        }
+                        arg.title.push_str(&x);
+                    }
                 }
-                r.arg.task_content.push_str(&x);
+                i += 1;
             }
+            r.input.task = Some(arg);
         }
-        i += 1;
+        _ => (),
     }
-
     return r;
 }
