@@ -3,6 +3,7 @@ pub enum ArgumentType {
     ADD,
     DELETE,
     FINISH,
+    LIST,
     UNKNOWN,
     NOTENOUGH,
 }
@@ -11,6 +12,7 @@ impl std::fmt::Display for ArgumentType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             ArgumentType::ADD => write!(f, "ADD"),
+            ArgumentType::LIST => write!(f, "LIST"),
             ArgumentType::DELETE => write!(f, "DELETE"),
             ArgumentType::FINISH => write!(f, "FINISH"),
             ArgumentType::UNKNOWN => write!(f, "UNKNOWN"),

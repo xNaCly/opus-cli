@@ -5,9 +5,6 @@ use crate::types::{ArgumentType, Cli, CliInput, InputTask};
 ///```bash
 ///opus add "update excel #work @tomorrow |||"
 ///```
-///```rust
-/// let result: Cli = Cli { top_level_arg: ADD, arg: Argument { task_content: "update excelsheet", task_tag: "#work", task_priority: 3, task_due: "@tomorrow" } }
-///```
 pub fn parse_cli(args: Vec<String>) -> Cli {
     let mut r: Cli = Cli {
         top_level_arg: ArgumentType::UNKNOWN,
@@ -24,6 +21,7 @@ pub fn parse_cli(args: Vec<String>) -> Cli {
             "add" | "a" => r.top_level_arg = ArgumentType::ADD,
             "finish" | "f" => r.top_level_arg = ArgumentType::FINISH,
             "delete" | "d" => r.top_level_arg = ArgumentType::DELETE,
+            "list" | "l" => r.top_level_arg = ArgumentType::LIST,
             _ => r.top_level_arg = ArgumentType::UNKNOWN,
         }
     }
@@ -40,6 +38,9 @@ pub fn parse_cli(args: Vec<String>) -> Cli {
     let task: Vec<&str> = args[2].split(" ").collect();
 
     match r.top_level_arg {
+        ArgumentType::DELETE | ArgumentType::LIST => {
+            r.input.query = Some(task.join(" "));
+        },
         ArgumentType::ADD => {
             let mut arg = InputTask {
                 title: "".to_string(),
