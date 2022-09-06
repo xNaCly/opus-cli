@@ -1,4 +1,8 @@
-use crate::types::{ArgumentType, Cli, CliInput, InputTask};
+use crate::{
+    db::*,
+    types::{ArgumentType, Cli, CliInput, InputTask, Task},
+};
+use chrono::{Datelike, Timelike, Utc};
 
 /// Converts commandline arguments into machine readable format
 ///
@@ -35,7 +39,7 @@ pub fn parse_cli(args: Vec<String>) -> Cli {
         _ => (),
     }
 
-    let task: Vec<&str> = args[2].split(" ").collect();
+    let task: Vec<&str> = args[2].trim().split(" ").collect();
 
     match r.top_level_arg {
         ArgumentType::DELETE | ArgumentType::LIST | ArgumentType::FINISH => {
@@ -71,13 +75,30 @@ pub fn parse_cli(args: Vec<String>) -> Cli {
 }
 
 /// add the given InputTask to the database
-pub fn cli_add_task(t: InputTask) {
+pub fn cli_add_task(mut t: InputTask) {
     if t.title.is_empty() {
         panic!(
             "Task '{:?}' has no title, a task's title is the only required value!",
             t
         );
     }
+
+    if !t.due.is_empty() {
+        t.due = match &t.due[..] {
+            "@tomorrow" => Utc::now().date().succ().format("%Y-%m-%d").to_string(),
+            "@today" => Utc::now().format("%Y-%m-%d").to_string(),
+            _ => t.due,
+        }
+    }
+
+    dbg!(Task {
+        title: t.title,
+        tag: t.tag,
+        priority: t.priority,
+        due: t.due,
+        id: 0,
+    });
+    // db_add()
 }
 
 /// remove the task with the given id from the database
