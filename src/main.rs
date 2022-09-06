@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+#![allow(unused_variables)]
 //! # opusCli
 //!
 //! cli todo tool - add, edit, tag and delete tasks
