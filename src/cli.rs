@@ -1,4 +1,7 @@
-use crate::types::{ArgumentType, Cli, CliInput, InputTask, Task};
+use crate::{
+    db::db_add,
+    types::{ArgumentType, Cli, CliInput, Task},
+};
 use chrono::Utc;
 
 /// Converts commandline arguments into machine readable format
@@ -6,7 +9,7 @@ use chrono::Utc;
 ///```bash
 ///opus add "update excel #work @tomorrow |||"
 ///```
-pub fn parse_cli(args: Vec<String>) -> Cli {
+pub fn parse_args(args: Vec<String>) -> Cli {
     let mut r: Cli = Cli {
         top_level_arg: ArgumentType::UNKNOWN,
         input: CliInput {
@@ -43,7 +46,7 @@ pub fn parse_cli(args: Vec<String>) -> Cli {
             r.input.query = Some(task.join(" "));
         }
         ArgumentType::ADD => {
-            let mut arg = InputTask {
+            let mut arg = Task {
                 title: "".to_string(),
                 tag: "".to_string(),
                 priority: 0,
@@ -71,8 +74,8 @@ pub fn parse_cli(args: Vec<String>) -> Cli {
     return r;
 }
 
-/// add the given InputTask to the database
-pub fn cli_add_task(mut t: InputTask) {
+/// add the given Task to the database
+pub fn cli_add_task(mut t: Task) {
     if t.title.is_empty() {
         panic!(
             "Task '{:?}' has no title, a task's title is the only required value!",
@@ -87,15 +90,13 @@ pub fn cli_add_task(mut t: InputTask) {
             _ => t.due,
         }
     }
-
-    dbg!(Task {
+    let task = Task {
         title: t.title,
         tag: t.tag,
         priority: t.priority,
         due: t.due,
-        id: 0,
-    });
-    // db_add()
+    };
+    db_add(task);
 }
 
 /// remove the task with the given id from the database

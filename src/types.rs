@@ -22,16 +22,8 @@ impl std::fmt::Display for ArgumentType {
 }
 
 #[derive(Debug)]
-pub struct InputTask {
-    pub title: String,
-    pub tag: String,
-    pub priority: usize,
-    pub due: String,
-}
-
-#[derive(Debug)]
 pub struct CliInput {
-    pub task: Option<InputTask>,
+    pub task: Option<Task>,
     pub query: Option<String>,
 }
 
@@ -41,7 +33,6 @@ pub struct Task {
     pub tag: String,
     pub priority: usize,
     pub due: String,
-    pub id: usize,
 }
 
 #[derive(Debug)]

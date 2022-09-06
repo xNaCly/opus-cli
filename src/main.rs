@@ -41,21 +41,22 @@
 use std::env;
 
 use cli::*;
-use types::{ArgumentType, InputTask};
+use types::{ArgumentType, Task};
 
-use crate::cli::parse_cli;
+use crate::cli::parse_args;
 use crate::types::Cli;
 
 mod cli;
 mod db;
+mod tests;
 mod types;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let result: Cli = parse_cli(args);
+    let result: Cli = parse_args(args);
     match &result.top_level_arg {
         ArgumentType::ADD => {
-            let t: InputTask = match result.input.task {
+            let t: Task = match result.input.task {
                 Some(x) => x,
                 _ => panic!("Input is malformated"),
             };
