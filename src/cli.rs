@@ -32,15 +32,15 @@ pub fn parse_cli(args: Vec<String>) -> Cli {
             args[1].to_string()
         ),
         ArgumentType::NOTENOUGH => panic!("Not enough Arguments."),
-        _ => {}
+        _ => (),
     }
 
     let task: Vec<&str> = args[2].split(" ").collect();
 
     match r.top_level_arg {
-        ArgumentType::DELETE | ArgumentType::LIST => {
+        ArgumentType::DELETE | ArgumentType::LIST | ArgumentType::FINISH => {
             r.input.query = Some(task.join(" "));
-        },
+        }
         ArgumentType::ADD => {
             let mut arg = InputTask {
                 title: "".to_string(),
@@ -68,4 +68,24 @@ pub fn parse_cli(args: Vec<String>) -> Cli {
         _ => (),
     }
     return r;
+}
+
+/// add the given InputTask to the database
+pub fn cli_add_task(t: InputTask) {
+    if t.title.is_empty() {
+        panic!(
+            "Task '{:?}' has no title, a task's title is the only required value!",
+            t
+        );
+    }
+}
+
+/// remove the task with the given id from the database
+pub fn cli_del_task(id: String) {
+    unimplemented!();
+}
+
+/// finish the task with the given id in the database
+pub fn cli_fin_task(id: String) {
+    unimplemented!();
 }
