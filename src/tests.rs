@@ -1,5 +1,7 @@
 #[cfg(test)]
 mod cli {
+    use std::vec;
+
     #[test]
     fn parse_args() {
         use crate::cli::parse_args;
@@ -14,5 +16,33 @@ mod cli {
         assert_eq!(task.tag, "#work");
         assert_eq!(task.due, "@today");
         assert_eq!(task.priority, 3);
+    }
+    #[test]
+    #[should_panic]
+    fn not_enough_arguments() {
+        use crate::cli::parse_args;
+        parse_args(vec!["opus".to_string()]);
+    }
+    #[test]
+    #[should_panic]
+    fn not_enough_arguments_ii() {
+        use crate::cli::parse_args;
+        parse_args(vec!["opus".to_string(), "add".to_string()]);
+    }
+}
+
+#[cfg(test)]
+mod db {
+
+    #[test]
+    fn get_config_path() {
+        use crate::db::get_config_path;
+        dbg!(get_config_path());
+    }
+
+    #[test]
+    fn does_config_exit() {
+        use crate::db::does_config_exist;
+        assert!(does_config_exist());
     }
 }
