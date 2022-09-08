@@ -1,3 +1,4 @@
+//! Opus integration and unit tests
 #[cfg(test)]
 mod cli {
     use std::vec;
@@ -42,7 +43,8 @@ mod db {
 
     #[test]
     fn does_config_exit() {
-        use crate::db::does_config_exist;
-        assert!(does_config_exist());
+        use crate::db::{does_file_exist, get_config_path};
+        let path = get_config_path();
+        assert!(does_file_exist(&path));
     }
 }

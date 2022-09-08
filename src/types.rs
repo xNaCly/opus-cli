@@ -1,10 +1,18 @@
+//! Opus types
+/// User action 
 #[derive(Debug, Clone, Copy)]
 pub enum ArgumentType {
+    /// add a new todo
     ADD,
+    /// delete a todo
     DELETE,
+    /// mark a todo as finished
     FINISH,
+    /// list todo matching the query
     LIST,
+    /// given argument is unknown
     UNKNOWN,
+    /// not enough arguments supplied
     NOTENOUGH,
 }
 

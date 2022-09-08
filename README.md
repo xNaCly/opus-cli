@@ -22,7 +22,8 @@ opus add "update excelsheet #work @tomorrow ,,,"
           |_ title
 ```
 
--   tags are prefixed with a `#` and should contain `\_` instead of spaces.
+-   title is the only required value
+-   tags are prefixed with a `#` and should contain `_` instead of spaces.
 -   due date is prefixed with a `@` and can either be `@today`, `@tomorrow` or a date (`yyyy-mm-dd`)
 -   priority is specified using `,` - highest priority is one `,`
 

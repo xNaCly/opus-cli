@@ -1,5 +1,5 @@
 use crate::{
-    db::db_add,
+    db::{db_add, db_get},
     types::{ArgumentType, Cli, CliInput, Task},
 };
 use chrono::Utc;
@@ -30,20 +30,23 @@ pub fn parse_args(args: Vec<String>) -> Cli {
         }
     }
 
+    let mut task: Vec<&str> = vec![];
+
     match r.top_level_arg {
+        ArgumentType::LIST => (),
         ArgumentType::UNKNOWN => panic!(
             "Unknown Argument '{}', run 'opus help' for more info on command syntax.",
             args[1].to_string()
         ),
         ArgumentType::NOTENOUGH => panic!("Not enough Arguments."),
-        _ => (),
+        _ => task = args[2].trim().split(" ").collect(),
     }
 
-    let task: Vec<&str> = args[2].trim().split(" ").collect();
 
     match r.top_level_arg {
         ArgumentType::DELETE | ArgumentType::LIST | ArgumentType::FINISH => {
-            r.input.query = Some(task.join(" "));
+            r.input.query = Some(args.join(" "));
+            dbg!(&r.input.query);
         }
         ArgumentType::ADD => {
             let mut arg = Task {
@@ -107,4 +110,9 @@ pub fn cli_del_task(id: String) {
 /// finish the task with the given id in the database
 pub fn cli_fin_task(id: String) {
     unimplemented!();
+}
+
+/// get tasks
+pub fn cli_get_tasks(_q: String) {
+    db_get();
 }

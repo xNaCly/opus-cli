@@ -48,8 +48,9 @@ use crate::types::Cli;
 
 mod cli;
 mod db;
-mod tests;
 mod types;
+
+mod tests;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -61,6 +62,9 @@ fn main() {
                 _ => panic!("Input is malformated"),
             };
             cli_add_task(t);
+        }
+        ArgumentType::LIST => {
+            cli_get_tasks("".to_string());
         }
         _ => panic!("Unkown argument."),
     }
