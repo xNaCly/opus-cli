@@ -5,7 +5,7 @@ use crate::types::Task;
 use std::env::consts::OS;
 use std::env::var;
 use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::path::Path;
 
 const CONFIG_PATH: &str = "/opus/opus_todo.txt";
@@ -22,7 +22,7 @@ const CONFIG_PATH: &str = "/opus/opus_todo.txt";
 /// - windows ✅
 /// - linux ❌
 /// - macos ❌
-pub fn get_config_path() -> String {
+pub fn get_db_path() -> String {
     // let opus_path = match var("OPUS_PATH") {
     //     Ok(r) => r,
     //     Err(e) => "".to_string(),
@@ -54,8 +54,16 @@ pub fn does_file_exist(path: &String) -> bool {
     Path::new(path).exists()
 }
 
+pub fn create_new_db() {
+    let path = get_db_path();
+    let mut file =
+        File::create(path).expect("Couldn't create database file, maybe it exists already");
+    file.write("id,title,tag,priority,date,finished".as_bytes())
+        .expect("Couldn't write to database file");
+}
+
 pub fn db_add(t: Task) {
-    let path = get_config_path();
+    let path = get_db_path();
     if !does_file_exist(&path) {
         panic!("Can't find database file")
     }
@@ -68,7 +76,7 @@ pub fn db_finish(id: usize) {
 }
 
 pub fn db_get() {
-    let path = get_config_path();
+    let path = get_db_path();
     if !does_file_exist(&path) {
         panic!("Can't find database file")
     }

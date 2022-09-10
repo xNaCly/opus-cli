@@ -36,15 +36,21 @@ mod cli {
 mod db {
 
     #[test]
-    fn get_config_path() {
-        use crate::db::get_config_path;
-        dbg!(get_config_path());
+    fn get_db_path() {
+        use crate::db::get_db_path;
+        dbg!(get_db_path());
     }
 
     #[test]
     fn does_config_exit() {
-        use crate::db::{does_file_exist, get_config_path};
-        let path = get_config_path();
+        use crate::db::{does_file_exist, get_db_path};
+        let path = get_db_path();
         assert!(does_file_exist(&path));
+    }
+
+    #[test]
+    fn get_database() {
+        use crate::db::db_get;
+        db_get();
     }
 }
