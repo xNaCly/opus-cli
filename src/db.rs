@@ -11,14 +11,6 @@
 //!
 //!
 //! # Opus database wrapper
-//!
-//! Opus follows the unix principle and therefore stores all its data in a text based csv database.
-//!
-//! Opus config file contains a header in the first row specifying all columns:
-//!
-//! ```csv
-//! id;title;tag;dueDate;finished
-//! ```
 use crate::types::Task;
 use std::env::consts::OS;
 use std::env::var;
@@ -76,38 +68,4 @@ pub fn does_file_exist(path: &String) -> bool {
 
 pub fn create_new_db() {
     let path = get_db_path();
-    let mut file =
-        File::create(path).expect("Couldn't create database file, maybe it exists already");
-    file.write("id,title,tag,priority,date,finished".as_bytes())
-        .expect("Couldn't write to database file");
-}
-
-pub fn db_add(t: Task) {
-    let path = get_db_path();
-    if !does_file_exist(&path) {
-        panic!("Can't find database file")
-    }
-    // todo: implement writing task to database
-}
-pub fn db_remove(id: usize) {
-    // todo: implement removing a task by clearing the row
-    unimplemented!()
-}
-pub fn db_finish(id: usize) {
-    unimplemented!()
-}
-
-pub fn db_get() {
-    let path = get_db_path();
-    if !does_file_exist(&path) {
-        panic!("Can't find database file")
-    }
-    dbg!(&path);
-    let file = File::open(path).expect("Couldn't open database file");
-    let reader = BufReader::new(file);
-
-    // todo: implement parsing line into task struct
-    for line in reader.lines() {
-        println!("{}", line.unwrap());
-    }
 }
