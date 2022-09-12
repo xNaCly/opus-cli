@@ -2,7 +2,7 @@ use std::env::consts::OS;
 use std::env::var;
 use std::path::Path;
 
-const CONFIG_PATH: &str = "/opus/opus_todo.txt";
+const CONFIG_PATH: &str = "/opus/opus.db";
 
 /// Get system dependent path to config files
 ///
@@ -17,13 +17,10 @@ const CONFIG_PATH: &str = "/opus/opus_todo.txt";
 /// - linux ❌
 /// - macos ❌
 pub fn get_db_path() -> String {
-    // todo: uncomment this after testing
-    // let opus_path = match var("OPUS_PATH") {
-    //     Ok(r) => r,
-    //     Err(e) => "".to_string(),
-    // };
-    // todo: remove this after testing
-    let opus_path = "c:/Users/gro112741/Desktop/opus_todo.txt".to_string();
+    let opus_path = match var("OPUS_PATH") {
+        Ok(r) => r,
+        Err(e) => "".to_string(),
+    };
 
     if !opus_path.is_empty() {
         return opus_path;

@@ -1,7 +1,4 @@
-use crate::{
-    db::{db_add, db_get},
-    types::{ArgumentType, Cli, CliInput, Task},
-};
+use crate::types::{ArgumentType, Cli, CliInput, Task};
 use chrono::Utc;
 
 /// Converts commandline arguments into machine readable format
@@ -41,7 +38,6 @@ pub fn parse_args(args: Vec<String>) -> Cli {
         ArgumentType::NOTENOUGH => panic!("Not enough Arguments."),
         _ => task = args[2].trim().split(" ").collect(),
     }
-
 
     match r.top_level_arg {
         ArgumentType::DELETE | ArgumentType::LIST | ArgumentType::FINISH => {
@@ -99,7 +95,8 @@ pub fn cli_add_task(mut t: Task) {
         priority: t.priority,
         due: t.due,
     };
-    db_add(task);
+    // todo: insert into database
+    unimplemented!()
 }
 
 /// remove the task with the given id from the database
@@ -114,5 +111,6 @@ pub fn cli_fin_task(id: String) {
 
 /// get tasks
 pub fn cli_get_tasks(_q: String) {
-    db_get();
+    // todo: get all task from database
+    unimplemented!()
 }
