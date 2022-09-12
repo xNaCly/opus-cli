@@ -101,11 +101,13 @@ pub fn cli_add_task(mut t: Task) {
 
 /// remove the task with the given id from the database
 pub fn cli_del_task(id: String) {
+    // todo: delete a task
     unimplemented!();
 }
 
 /// finish the task with the given id in the database
 pub fn cli_fin_task(id: String) {
+    // todo: set a task as finished / completed
     unimplemented!();
 }
 

@@ -11,6 +11,11 @@
 //!
 //!
 //! # Opus database wrapper
-pub fn new_db_connection(path: String) {
+use rusqlite::{Connection, Result};
+
+use crate::util::get_db_path;
+
+pub fn new_db_connection() {
+    let path = get_db_path();
     unimplemented!();
 }
