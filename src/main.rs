@@ -49,6 +49,7 @@ use crate::types::Cli;
 mod cli;
 mod db;
 mod types;
+mod util;
 
 mod tests;
 
