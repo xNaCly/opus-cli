@@ -1,5 +1,6 @@
 use std::env::consts::OS;
 use std::env::var;
+use std::fs::{File, create_dir_all};
 use std::path::Path;
 
 const CONFIG_PATH: &str = "/opus/opus.db";
@@ -30,7 +31,7 @@ pub fn get_db_path() -> String {
         "linux" => match var("XDG_CONFIG_HOME") {
             Ok(r) => r,
             Err(e) => var("HOME")
-                .expect("$HOME variable not set, is your operating system configured correctly?"),
+                .expect("$HOME variable not set, is your operating system configured correctly? Try setting the $OPUS_PATH env variable to a path which opus can access."),
         },
         "windows" => match var("LOCALAPPDATA") {
             Ok(r) => r,
@@ -45,4 +46,11 @@ pub fn get_db_path() -> String {
 
 pub fn does_file_exist(path: &String) -> bool {
     Path::new(path).exists()
+}
+
+pub fn create_file(path: &String) {
+    let new_path = Path::new(path);
+    let parent = new_path.parent().expect("Couldn't get Parent directory while creating database directory");
+    create_dir_all(parent).expect("Couldn't create database directory");
+    File::create(new_path).expect("Coudln't create database file");
 }

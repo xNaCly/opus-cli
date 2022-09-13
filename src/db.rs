@@ -11,11 +11,13 @@
 //!
 //!
 //! # Opus database wrapper
-use rusqlite::{Connection, Result};
-
-use crate::util::get_db_path;
+use crate::util::{create_file, does_file_exist, get_db_path};
 
 pub fn new_db_connection() {
     let path = get_db_path();
+    if !does_file_exist(&path) {
+        create_file(&path);
+    }
+    dbg!(path);
     unimplemented!();
 }
