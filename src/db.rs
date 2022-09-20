@@ -11,13 +11,21 @@
 //!
 //!
 //! # Opus database wrapper
-use crate::util::{create_file, does_file_exist, get_db_path};
+use rusqlite::Connection;
 
-pub fn new_db_connection() {
+use crate::{types::Task, util::get_db_path};
+
+pub fn open_db() -> Connection {
     let path = get_db_path();
-    if !does_file_exist(&path) {
-        create_file(&path);
+
+    dbg!(&path);
+
+    match Connection::open(path) {
+        Ok(con) => con,
+        Err(_) => panic!("Couldn't open database!"),
     }
-    dbg!(path);
-    unimplemented!();
+}
+
+pub fn get_task_by_id(id: usize) -> Task {
+    unimplemented!()
 }
