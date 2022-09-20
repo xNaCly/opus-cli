@@ -89,6 +89,7 @@ pub fn cli_add_task(mut t: Task) {
             _ => t.due,
         }
     }
+
     let task = Task {
         title: t.title,
         tag: t.tag,

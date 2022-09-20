@@ -34,6 +34,7 @@ mod cli {
 
 #[cfg(test)]
 mod db {
+    use crate::db::open_db;
 
     #[test]
     fn get_db_path() {
@@ -42,10 +43,7 @@ mod db {
     }
 
     #[test]
-    #[should_panic]
-    fn does_config_exit() {
-        use crate::util::{does_file_exist, get_db_path};
-        let path = get_db_path();
-        assert!(does_file_exist(&path));
+    fn open_connection() {
+        open_db();
     }
 }
