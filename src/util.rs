@@ -1,7 +1,5 @@
 use std::env::consts::OS;
 use std::env::var;
-use std::fs::{File, create_dir_all};
-use std::path::Path;
 
 const CONFIG_PATH: &str = "/opus/opus.db";
 
@@ -27,7 +25,7 @@ pub fn get_db_path() -> String {
         return opus_path;
     };
 
-    let mut prefix = match OS {
+    let mut path_prefix = match OS {
         "linux" => match var("XDG_CONFIG_HOME") {
             Ok(r) => r,
             Err(e) => var("HOME")
@@ -40,17 +38,6 @@ pub fn get_db_path() -> String {
         _ => "/".to_string(),
     }
     .to_string();
-    prefix.push_str(CONFIG_PATH);
-    return prefix;
-}
-
-pub fn does_file_exist(path: &String) -> bool {
-    Path::new(path).exists()
-}
-
-pub fn create_file(path: &String) {
-    let new_path = Path::new(path);
-    let parent = new_path.parent().expect("Couldn't get Parent directory while creating database directory");
-    create_dir_all(parent).expect("Couldn't create database directory");
-    File::create(new_path).expect("Coudln't create database file");
+    path_prefix.push_str(CONFIG_PATH);
+    return path_prefix;
 }
