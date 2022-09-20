@@ -41,7 +41,7 @@
 use std::env;
 
 use cli::*;
-use db::new_db_connection;
+use db::open_db;
 use types::{ArgumentType, Task};
 
 use crate::cli::parse_args;
@@ -57,7 +57,7 @@ mod tests;
 fn main() {
     let args: Vec<String> = env::args().collect();
     let result: Cli = parse_args(args);
-    new_db_connection();
+    let conn = open_db();
     match &result.top_level_arg {
         ArgumentType::ADD => {
             let t: Task = match result.input.task {
@@ -71,4 +71,5 @@ fn main() {
         }
         _ => panic!("Unkown argument."),
     }
+    conn.close().expect("Error while closing database");
 }
