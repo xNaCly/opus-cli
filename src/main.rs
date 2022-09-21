@@ -42,7 +42,7 @@ use std::env;
 
 use cli::*;
 use db::open_db;
-use types::{ArgumentType, Task};
+use types::{ArgumentType, Database, Task};
 
 use crate::cli::parse_args;
 use crate::types::Cli;
@@ -57,19 +57,23 @@ mod tests;
 fn main() {
     let args: Vec<String> = env::args().collect();
     let result: Cli = parse_args(args);
-    let conn = open_db();
+
+    let db: Database = open_db();
+    db.create_table_if_missing();
+
     match &result.top_level_arg {
         ArgumentType::ADD => {
             let t: Task = match result.input.task {
                 Some(x) => x,
                 _ => panic!("Input is malformated"),
             };
-            cli_add_task(t);
+            cli_add_task(&db, t);
         }
         ArgumentType::LIST => {
             cli_get_tasks("".to_string());
         }
         _ => panic!("Unkown argument."),
     }
-    conn.close().expect("Error while closing database");
+
+    db.con.close().expect("Error while closing database");
 }

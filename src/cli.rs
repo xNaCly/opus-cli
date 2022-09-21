@@ -1,4 +1,4 @@
-use crate::types::{ArgumentType, Cli, CliInput, Task};
+use crate::types::{ArgumentType, Cli, CliInput, Database, Task};
 use chrono::Utc;
 
 /// Converts commandline arguments into machine readable format
@@ -74,7 +74,7 @@ pub fn parse_args(args: Vec<String>) -> Cli {
 }
 
 /// add the given Task to the database
-pub fn cli_add_task(mut t: Task) {
+pub fn cli_add_task(db: &Database, mut t: Task) {
     if t.title.is_empty() {
         panic!(
             "Task '{:?}' has no title, a task's title is the only required value!",
@@ -96,8 +96,8 @@ pub fn cli_add_task(mut t: Task) {
         priority: t.priority,
         due: t.due,
     };
-    // todo: insert into database
-    unimplemented!()
+
+    db.insert_task(task);
 }
 
 /// remove the task with the given id from the database

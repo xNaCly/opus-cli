@@ -1,5 +1,7 @@
 //! Opus types
-/// User action 
+
+use rusqlite::Connection;
+/// User action
 #[derive(Debug, Clone, Copy)]
 pub enum ArgumentType {
     /// add a new todo
@@ -47,4 +49,8 @@ pub struct Task {
 pub struct Cli {
     pub top_level_arg: ArgumentType,
     pub input: CliInput,
+}
+
+pub struct Database {
+    pub con: Connection,
 }
