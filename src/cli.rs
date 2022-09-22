@@ -41,11 +41,15 @@ pub fn parse_args(args: Vec<String>) -> Cli {
 
     match r.top_level_arg {
         ArgumentType::DELETE | ArgumentType::LIST | ArgumentType::FINISH => {
-            r.input.query = Some(args.join(" "));
-            dbg!(&r.input.query);
+            r.input.query = Some(
+                args.get(args.len() - 1)
+                    .expect("Not enough Arguments.")
+                    .to_string(),
+            );
         }
         ArgumentType::ADD => {
             let mut arg = Task {
+                id: None,
                 title: "".to_string(),
                 tag: "".to_string(),
                 priority: 0,
@@ -56,7 +60,7 @@ pub fn parse_args(args: Vec<String>) -> Cli {
                 match x.chars().nth(0).unwrap() {
                     '#' => arg.tag = x.to_string(),
                     '@' => arg.due = x.to_string(),
-                    '|' => arg.priority = x.len(),
+                    ',' => arg.priority = x.len(),
                     _ => {
                         if i != 0 {
                             arg.title.push_str(" ");
@@ -91,6 +95,7 @@ pub fn cli_add_task(db: &Database, mut t: Task) {
     }
 
     let task = Task {
+        id: None,
         title: t.title,
         tag: t.tag,
         priority: t.priority,
@@ -112,8 +117,10 @@ pub fn cli_fin_task(id: String) {
     unimplemented!();
 }
 
-/// get tasks
-pub fn cli_get_tasks(_q: String) {
-    // todo: get all task from database
-    unimplemented!()
+// /// get tasks
+// pub fn cli_get_tasks(_q: String) {
+//     unimplemented!()
+// }
+pub fn cli_get_tasks(db: &Database, q: String) -> Vec<Task> {
+    db.get_tasks(q.chars().nth(0).expect("Failure in getting task query"), q)
 }

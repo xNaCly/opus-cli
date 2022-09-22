@@ -39,6 +39,7 @@ pub struct CliInput {
 
 #[derive(Debug)]
 pub struct Task {
+    pub id: Option<usize>,
     pub title: String,
     pub tag: String,
     pub priority: usize,

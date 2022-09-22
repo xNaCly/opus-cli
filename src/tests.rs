@@ -9,7 +9,7 @@ mod cli {
         let r = parse_args(vec![
             "opus".to_string(),
             "add".to_string(),
-            "update excel sheet #work @today |||".to_string(),
+            "update excel sheet #work @today ,,,".to_string(),
         ]);
         dbg!(&r);
         let task = r.input.task.unwrap();
@@ -34,7 +34,10 @@ mod cli {
 
 #[cfg(test)]
 mod db {
-    use crate::{cli::cli_add_task, db::open_db};
+    use crate::{
+        cli::{cli_add_task, cli_get_tasks},
+        db::open_db,
+    };
 
     #[test]
     fn get_db_path() {
@@ -61,11 +64,84 @@ mod db {
         let r = parse_args(vec![
             "opus".to_string(),
             "add".to_string(),
-            "update excel sheet #work @today |||".to_string(),
+            "update excel sheet #work @today ,,,".to_string(),
         ]);
         let task = r.input.task.unwrap();
         let db = open_db();
+        db.create_table_if_missing();
         cli_add_task(&db, task);
+        db.con.close().expect("Closing Database failed.");
+    }
+
+    #[test]
+    fn get_task_by_id() {
+        use crate::cli::parse_args;
+        let r = parse_args(vec![
+            "opus".to_string(),
+            "add".to_string(),
+            "update excel sheet #work @today ,,,".to_string(),
+        ]);
+        let task = r.input.task.unwrap();
+        let db = open_db();
+        db.create_table_if_missing();
+
+        cli_add_task(&db, task);
+        let tasks = cli_get_tasks(&db, db.con.last_insert_rowid().to_string());
+        let task = tasks.get(0).unwrap();
+
+        assert_eq!(task.title, "update excel sheet");
+        assert_eq!(task.tag, "#work");
+        assert_eq!(task.priority, 3);
+
+        db.con.close().expect("Closing Database failed.");
+    }
+
+    #[test]
+    fn get_task_by_tag() {
+        use crate::cli::parse_args;
+        let r = parse_args(vec![
+            "opus".to_string(),
+            "add".to_string(),
+            "update excel sheet #work @today ,,,".to_string(),
+        ]);
+        let task = r.input.task.unwrap();
+
+        let db = open_db();
+        db.create_table_if_missing();
+
+        cli_add_task(&db, task);
+        let tasks = cli_get_tasks(&db, "#work".to_string());
+        let task = tasks.get(0).unwrap();
+
+        assert_eq!(task.title, "update excel sheet");
+        assert_eq!(task.tag, "#work");
+        assert_eq!(task.priority, 3);
+
+        db.con.close().expect("Closing Database failed.");
+    }
+
+    #[test]
+    fn get_task_by_prio() {
+        use crate::cli::parse_args;
+
+        let r = parse_args(vec![
+            "opus".to_string(),
+            "add".to_string(),
+            "update excel sheet #work @today ,,,".to_string(),
+        ]);
+        let task = r.input.task.unwrap();
+
+        let db = open_db();
+        db.create_table_if_missing();
+
+        cli_add_task(&db, task);
+        let tasks = cli_get_tasks(&db, ",,,".to_string());
+        let task = tasks.get(0).unwrap();
+
+        assert_eq!(task.title, "update excel sheet");
+        assert_eq!(task.tag, "#work");
+        assert_eq!(task.priority, 3);
+
         db.con.close().expect("Closing Database failed.");
     }
 }

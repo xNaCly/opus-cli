@@ -70,7 +70,7 @@ fn main() {
             cli_add_task(&db, t);
         }
         ArgumentType::LIST => {
-            cli_get_tasks("".to_string());
+            println!("{:#?}", cli_get_tasks(&db, result.input.query.unwrap()));
         }
         _ => panic!("Unkown argument."),
     }
