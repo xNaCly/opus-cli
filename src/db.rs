@@ -1,10 +1,11 @@
 //! # Opus database wrapper
 use rusqlite::Connection;
 
-use crate::{
-    types::{Database, Task},
-    util::get_db_path,
-};
+use crate::{types::Task, util::create_dir_if_not_exist, util::get_db_path};
+
+pub struct Database {
+    pub con: Connection,
+}
 
 pub const CREATE_TABLE_IF_MISSING: &str = "CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY, title TEXT, tag TEXT, due TEXT, priority INTEGER)";
 pub const GET_TASK_BY_ID: &str = "SELECT * FROM tasks WHERE id IS ?";
@@ -14,9 +15,7 @@ pub const INSERT_TASK: &str = "INSERT INTO tasks (title, tag, due, priority) VAL
 
 pub fn open_db() -> Database {
     let path = get_db_path();
-
-    dbg!(&path);
-
+    create_dir_if_not_exist(&path);
     match Connection::open(path) {
         Ok(con) => Database { con },
         Err(_) => panic!("Couldn't open database!"),
@@ -45,11 +44,11 @@ impl Database {
 
         stmt.query_map([query], |row| {
             Ok(Task {
-                id: row.get(0)?,
-                title: row.get(1)?,
-                tag: row.get(2)?,
-                due: row.get(3)?,
-                priority: row.get(4)?,
+                id: row.get("id")?,
+                title: row.get("title")?,
+                tag: row.get("tag")?,
+                due: row.get("due")?,
+                priority: row.get("priority")?,
             })
         })
         .expect("Couldn't get task with the given id")

@@ -41,8 +41,8 @@
 use std::env;
 
 use cli::*;
-use db::open_db;
-use types::{ArgumentType, Database, Task};
+use db::{open_db, Database};
+use types::{ArgumentType, Task};
 
 use crate::cli::parse_args;
 use crate::types::Cli;
@@ -62,14 +62,14 @@ fn main() {
     db.create_table_if_missing();
 
     match &result.top_level_arg {
-        ArgumentType::ADD => {
+        ArgumentType::Add => {
             let t: Task = match result.input.task {
                 Some(x) => x,
                 _ => panic!("Input is malformated"),
             };
             cli_add_task(&db, t);
         }
-        ArgumentType::LIST => {
+        ArgumentType::List => {
             println!("{:#?}", cli_get_tasks(&db, result.input.query.unwrap()));
         }
         _ => panic!("Unkown argument."),

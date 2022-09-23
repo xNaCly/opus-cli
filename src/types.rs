@@ -1,32 +1,30 @@
 //! Opus types
-
-use rusqlite::Connection;
 /// User action
 #[derive(Debug, Clone, Copy)]
 pub enum ArgumentType {
     /// add a new todo
-    ADD,
+    Add,
     /// delete a todo
-    DELETE,
+    Delete,
     /// mark a todo as finished
-    FINISH,
+    Finish,
     /// list todo matching the query
-    LIST,
+    List,
     /// given argument is unknown
-    UNKNOWN,
+    Unknown,
     /// not enough arguments supplied
-    NOTENOUGH,
+    Notenough,
 }
 
 impl std::fmt::Display for ArgumentType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            ArgumentType::ADD => write!(f, "ADD"),
-            ArgumentType::LIST => write!(f, "LIST"),
-            ArgumentType::DELETE => write!(f, "DELETE"),
-            ArgumentType::FINISH => write!(f, "FINISH"),
-            ArgumentType::UNKNOWN => write!(f, "UNKNOWN"),
-            ArgumentType::NOTENOUGH => write!(f, "NOTENOUGH"),
+            ArgumentType::Add => write!(f, "ADD"),
+            ArgumentType::List => write!(f, "LIST"),
+            ArgumentType::Delete => write!(f, "DELETE"),
+            ArgumentType::Finish => write!(f, "FINISH"),
+            ArgumentType::Unknown => write!(f, "UNKNOWN"),
+            ArgumentType::Notenough => write!(f, "NOTENOUGH"),
         }
     }
 }
@@ -50,8 +48,4 @@ pub struct Task {
 pub struct Cli {
     pub top_level_arg: ArgumentType,
     pub input: CliInput,
-}
-
-pub struct Database {
-    pub con: Connection,
 }

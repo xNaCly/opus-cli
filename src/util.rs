@@ -1,5 +1,7 @@
 use std::env::consts::OS;
 use std::env::var;
+use std::fs::create_dir;
+use std::path::Path;
 
 const CONFIG_PATH: &str = "/opus/opus.db";
 
@@ -36,8 +38,17 @@ pub fn get_db_path() -> String {
             Err(e) => "/".to_string(),
         },
         _ => "/".to_string(),
-    }
-    .to_string();
+    };
     path_prefix.push_str(CONFIG_PATH);
-    return path_prefix;
+    path_prefix
+}
+
+pub fn create_dir_if_not_exist(path: &String) -> bool {
+    let path = Path::new(&path);
+    let ppath = &path.parent().expect("Couldn't get database path parent");
+    if !path.exists() && !ppath.exists() {
+        create_dir(ppath).expect("Couldn't create database parent directory");
+        return true;
+    };
+    false
 }

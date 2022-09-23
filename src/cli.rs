@@ -1,4 +1,5 @@
-use crate::types::{ArgumentType, Cli, CliInput, Database, Task};
+use crate::db::Database;
+use crate::types::{ArgumentType, Cli, CliInput, Task};
 use chrono::Utc;
 
 /// Converts commandline arguments into machine readable format
@@ -8,46 +9,42 @@ use chrono::Utc;
 ///```
 pub fn parse_args(args: Vec<String>) -> Cli {
     let mut r: Cli = Cli {
-        top_level_arg: ArgumentType::UNKNOWN,
+        top_level_arg: ArgumentType::Unknown,
         input: CliInput {
             task: None,
             query: None,
         },
     };
 
-    if args.len() <= 2 {
-        r.top_level_arg = ArgumentType::NOTENOUGH;
+    r.top_level_arg = if args.len() <= 2 {
+        ArgumentType::Notenough
     } else {
         match args[1].as_str() {
-            "add" | "a" => r.top_level_arg = ArgumentType::ADD,
-            "finish" | "f" => r.top_level_arg = ArgumentType::FINISH,
-            "delete" | "d" => r.top_level_arg = ArgumentType::DELETE,
-            "list" | "l" => r.top_level_arg = ArgumentType::LIST,
-            _ => r.top_level_arg = ArgumentType::UNKNOWN,
+            "add" | "a" => ArgumentType::Add,
+            "finish" | "f" => ArgumentType::Finish,
+            "delete" | "d" => ArgumentType::Delete,
+            "list" | "l" => ArgumentType::List,
+            _ => ArgumentType::Unknown,
         }
-    }
+    };
 
     let mut task: Vec<&str> = vec![];
 
     match r.top_level_arg {
-        ArgumentType::LIST => (),
-        ArgumentType::UNKNOWN => panic!(
+        ArgumentType::List => (),
+        ArgumentType::Unknown => panic!(
             "Unknown Argument '{}', run 'opus help' for more info on command syntax.",
-            args[1].to_string()
+            args[1]
         ),
-        ArgumentType::NOTENOUGH => panic!("Not enough Arguments."),
-        _ => task = args[2].trim().split(" ").collect(),
+        ArgumentType::Notenough => panic!("Not enough Arguments."),
+        _ => task = args[2].trim().split(' ').collect(),
     }
 
     match r.top_level_arg {
-        ArgumentType::DELETE | ArgumentType::LIST | ArgumentType::FINISH => {
-            r.input.query = Some(
-                args.get(args.len() - 1)
-                    .expect("Not enough Arguments.")
-                    .to_string(),
-            );
+        ArgumentType::Delete | ArgumentType::List | ArgumentType::Finish => {
+            r.input.query = Some(args.last().expect("Not enough Arguments.").to_string());
         }
-        ArgumentType::ADD => {
+        ArgumentType::Add => {
             let mut arg = Task {
                 id: None,
                 title: "".to_string(),
@@ -55,26 +52,24 @@ pub fn parse_args(args: Vec<String>) -> Cli {
                 priority: 0,
                 due: "".to_string(),
             };
-            let mut i = 0;
-            for x in &task {
-                match x.chars().nth(0).unwrap() {
+            for (i, x) in task.iter().enumerate() {
+                match x.chars().next().unwrap() {
                     '#' => arg.tag = x.to_string(),
                     '@' => arg.due = x.to_string(),
                     ',' => arg.priority = x.len(),
                     _ => {
                         if i != 0 {
-                            arg.title.push_str(" ");
+                            arg.title.push(' ');
                         }
-                        arg.title.push_str(&x);
+                        arg.title.push_str(x);
                     }
                 }
-                i += 1;
             }
             r.input.task = Some(arg);
         }
         _ => (),
     }
-    return r;
+    r
 }
 
 /// add the given Task to the database
@@ -122,5 +117,5 @@ pub fn cli_fin_task(id: String) {
 //     unimplemented!()
 // }
 pub fn cli_get_tasks(db: &Database, q: String) -> Vec<Task> {
-    db.get_tasks(q.chars().nth(0).expect("Failure in getting task query"), q)
+    db.get_tasks(q.chars().next().expect("Failure in getting task query"), q)
 }
