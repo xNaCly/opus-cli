@@ -15,7 +15,7 @@ const CONFIG_PATH: &str = "/opus/opus.db";
 ///
 /// Testing status:
 /// - windows ✅
-/// - linux ❌
+/// - linux ✅
 /// - macos ❌
 pub fn get_db_path() -> String {
     let opus_path = match var("OPUS_PATH") {
