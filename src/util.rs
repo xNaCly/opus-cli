@@ -28,7 +28,7 @@ pub fn get_db_path() -> String {
     };
 
     let mut path_prefix = match OS {
-        "linux" => match var("XDG_CONFIG_HOME") {
+        "linux" | "macos" => match var("XDG_CONFIG_HOME") {
             Ok(r) => r,
             Err(e) => var("HOME")
                 .expect("$HOME variable not set, is your operating system configured correctly? Try setting the $OPUS_PATH env variable to a path which opus can access."),
@@ -37,7 +37,7 @@ pub fn get_db_path() -> String {
             Ok(r) => r,
             Err(e) => "/".to_string(),
         },
-        _ => "/".to_string(),
+        _ => "/".to_string()
     };
     path_prefix.push_str(CONFIG_PATH);
     path_prefix
