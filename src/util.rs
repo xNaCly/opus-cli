@@ -7,13 +7,17 @@ const CONFIG_PATH: &str = "/opus/opus.db";
 
 /// Get system dependent path to config files
 ///
-/// Opus amis to be platform indepentent, thus its database is located at:
-/// - `$OPUS_PATH ` or `%OPUS_PATH%`
-/// - windows: `%LOCALAPPDATA%/opus/opus_todo.txt`
-/// - linux: `$XDG_CONFIG_HOME/opus/opus_todo.txt` or `$HOME/opus/opus_todo.txt`
-/// - anything else uses the root directory (may require admin permission on windows and root on unix)
+/// Opus amis to be working on all platforms, thus its database is located at:
+/// - `$OPUS_PATH` or `%OPUS_PATH%`
+/// - windows: `%LOCALAPPDATA%/opus/opus.db`
+/// - linux or macos: `$XDG_CONFIG_HOME/opus/opus.db` or `$HOME/opus/opus.db`
 ///
-/// Testing status:
+/// <p style="background:rgba(255,181,77,0.16);padding:0.75em;">
+/// <strong>Warning:</strong>
+/// If the target system is not in the above, opus will panic. To fix this set the <code>OPUS_PATH</code> env variable.
+/// </p>
+///
+/// Tested on:
 /// - windows ✅
 /// - linux ✅
 /// - macos ✅
@@ -37,7 +41,7 @@ pub fn get_db_path() -> String {
             Ok(r) => r,
             Err(e) => "/".to_string(),
         },
-        _ => "/".to_string()
+      _ => panic!("Couldn't find a config file implementation for your system, consider setting the $OPUS_PATH or %OPUS_PATH% system variable to point opus to the desired config folder - otherwise opus won't work.")
     };
     path_prefix.push_str(CONFIG_PATH);
     path_prefix
