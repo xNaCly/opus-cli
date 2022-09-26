@@ -2,10 +2,44 @@ use crate::db::Database;
 use crate::types::{ArgumentType, Cli, CliInput, Task};
 use chrono::Utc;
 
-/// Converts commandline arguments into machine readable format
+/// Converts command line arguments into machine readable format
 ///
 ///```bash
-///opus add "update excel #work @tomorrow |||"
+///opus add "update excel #work @tomorrow ,,,"
+///```
+///
+///```rust
+///Cli {
+///    top_level_arg: Add,
+///    input: CliInput {
+///        task: Some(
+///            Task {
+///                id: None,
+///                title: "update excel",
+///                tag: "#work",
+///                priority: 3,
+///                due: "@tomorrow",
+///            },
+///        ),
+///        query: None,
+///    },
+///}
+///```
+///
+///```bash
+///opus list "#work"
+///```
+///
+///```rust
+///&r = Cli {
+///    top_level_arg: List,
+///    input: CliInput {
+///        task: None,
+///        query: Some(
+///            "#work",
+///        ),
+///    },
+///}
 ///```
 pub fn parse_args(args: Vec<String>) -> Cli {
     let mut r: Cli = Cli {
@@ -112,10 +146,6 @@ pub fn cli_fin_task(id: String) {
     unimplemented!();
 }
 
-// /// get tasks
-// pub fn cli_get_tasks(_q: String) {
-//     unimplemented!()
-// }
 pub fn cli_get_tasks(db: &Database, q: String) -> Vec<Task> {
     db.get_tasks(q.chars().next().expect("Failure in getting task query"), q)
 }

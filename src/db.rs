@@ -23,6 +23,14 @@ pub fn open_db() -> Database {
 }
 
 impl Database {
+    /// gets a vector of tasks matching the given property and query
+    ///
+    /// property:
+    ///  - `#`: task tag
+    ///  - `,`: task prio
+    ///  - `@`: task due date
+    ///
+    /// Property is generally the first char of the query. Matching the property type is required to choose the correct database query.
     pub fn get_tasks(&self, property: char, mut query: String) -> Vec<Task> {
         let sql_query = match property {
             '#' => GET_TASK_BY_TAG,
