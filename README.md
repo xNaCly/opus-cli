@@ -1,5 +1,3 @@
-[![cargo-test](https://github.com/xNaCly/opusCli/actions/workflows/ci.yml/badge.svg)](https://github.com/xNaCly/opusCli/actions/workflows/ci.yml)
-> # opusCli is still in development, I'd suggest you don't try it yet
 # opusCli
 
 cli todo tool - add, edit, tag and delete tasks
