@@ -42,6 +42,7 @@ pub struct Task {
     pub tag: String,
     pub priority: usize,
     pub due: String,
+    pub finished: bool,
 }
 
 #[derive(Debug)]

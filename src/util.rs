@@ -13,9 +13,7 @@ const CONFIG_PATH: &str = "/opus/opus.db";
 /// - linux or macos: `$XDG_CONFIG_HOME/opus/opus.db` or `$HOME/opus/opus.db`
 ///
 /// <p style="background:rgba(255,181,77,0.16);padding:0.75em;">
-/// <strong>Warning:</strong>
-/// If the target system is not in the above, opus will panic. To fix this set the <code>OPUS_PATH</code> env variable.
-/// </p>
+/// <strong>Warning:</strong> If the target system is not in the above, opus will panic. To fix this set the <code>OPUS_PATH</code> env variable. </p>
 ///
 /// Tested on:
 /// - windows ✅

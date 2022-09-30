@@ -85,6 +85,7 @@ pub fn parse_args(args: Vec<String>) -> Cli {
                 tag: "".to_string(),
                 priority: 0,
                 due: "".to_string(),
+                finished: false,
             };
             for (i, x) in task.iter().enumerate() {
                 match x.chars().next().unwrap() {
@@ -129,6 +130,7 @@ pub fn cli_add_task(db: &Database, mut t: Task) {
         tag: t.tag,
         priority: t.priority,
         due: t.due,
+        finished: false,
     };
 
     db.insert_task(task);
