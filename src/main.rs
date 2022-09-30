@@ -65,14 +65,21 @@ fn main() {
         ArgumentType::Add => {
             let t: Task = match result.input.task {
                 Some(x) => x,
-                _ => panic!("Input is malformated"),
+                _ => panic!("Input is malformed"),
             };
             cli_add_task(&db, t);
         }
         ArgumentType::List => {
             println!("{:#?}", cli_get_tasks(&db, result.input.query.unwrap()));
         }
-        _ => panic!("Unkown argument."),
+        ArgumentType::Finish => {
+            if cli_fin_task(&db, result.input.query.unwrap()) {
+                println!("marked task as finished");
+            } else {
+                println!("marking task as finished failed");
+            }
+        }
+        _ => panic!("Unknown argument."),
     }
 
     db.con.close().expect("Error while closing database");

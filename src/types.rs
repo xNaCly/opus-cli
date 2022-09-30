@@ -1,6 +1,6 @@
 //! Opus types
 /// User action
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ArgumentType {
     /// add a new todo
     Add,

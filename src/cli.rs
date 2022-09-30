@@ -50,16 +50,18 @@ pub fn parse_args(args: Vec<String>) -> Cli {
         },
     };
 
-    r.top_level_arg = if args.len() <= 2 {
+    r.top_level_arg = match args[1].as_str() {
+        "add" | "a" => ArgumentType::Add,
+        "finish" | "f" => ArgumentType::Finish,
+        "delete" | "d" => ArgumentType::Delete,
+        "list" | "l" => ArgumentType::List,
+        _ => ArgumentType::Unknown,
+    };
+
+    r.top_level_arg = if args.len() <= 2 && r.top_level_arg != ArgumentType::List {
         ArgumentType::Notenough
     } else {
-        match args[1].as_str() {
-            "add" | "a" => ArgumentType::Add,
-            "finish" | "f" => ArgumentType::Finish,
-            "delete" | "d" => ArgumentType::Delete,
-            "list" | "l" => ArgumentType::List,
-            _ => ArgumentType::Unknown,
-        }
+        r.top_level_arg
     };
 
     let mut task: Vec<&str> = vec![];
@@ -138,14 +140,12 @@ pub fn cli_add_task(db: &Database, mut t: Task) {
 
 /// remove the task with the given id from the database
 pub fn cli_del_task(id: String) {
-    // todo: delete a task
-    unimplemented!();
+    // todo: delete a task unimplemented!();
 }
 
 /// finish the task with the given id in the database
-pub fn cli_fin_task(id: String) {
-    // todo: set a task as finished / completed
-    unimplemented!();
+pub fn cli_fin_task(db: &Database, id: String) -> bool {
+    db.mark_task_as_finished(id.parse::<usize>().expect("Given id wasn't an integer")) != 0
 }
 
 pub fn cli_get_tasks(db: &Database, q: String) -> Vec<Task> {
