@@ -71,6 +71,7 @@ impl Database {
                 })
                 .expect("Failed to query all tasks")
                 .map(|x| x.expect("Couldn't map over tasks returned by database"))
+                // TODO: remove this if queried by id
                 .filter(|x| !x.finished)
                 .collect::<Vec<Task>>();
         }
@@ -91,6 +92,7 @@ impl Database {
         })
         .expect("Couldn't get task with the given query")
         .map(|x| x.expect("Couldn't map over tasks returned by database"))
+        // TODO: remove
         .filter(|x| !x.finished)
         .collect::<Vec<Task>>()
     }

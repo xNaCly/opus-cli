@@ -59,7 +59,10 @@ pub fn parse_args(args: Vec<String>) -> Cli {
         _ => ArgumentType::Unknown,
     };
 
-    r.top_level_arg = if args.len() <= 2 && r.top_level_arg != ArgumentType::List && r.top_level_arg != ArgumentType::Clear {
+    r.top_level_arg = if args.len() <= 2
+        && r.top_level_arg != ArgumentType::List
+        && r.top_level_arg != ArgumentType::Clear
+    {
         ArgumentType::Notenough
     } else {
         r.top_level_arg
