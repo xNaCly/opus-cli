@@ -1,7 +1,6 @@
 //! Opus integration and unit tests
 #[cfg(test)]
 mod cli {
-    use std::vec;
 
     #[test]
     fn parse_args() {
@@ -32,17 +31,31 @@ mod cli {
 }
 
 #[cfg(test)]
+mod util {
+    use std::path::Path;
+
+    use crate::util::{create_dir_if_not_exist, get_db_path};
+
+    #[test]
+    fn get_database_path() {
+        assert!(!(get_db_path().is_empty()));
+    }
+
+    #[test]
+    fn create_dir_if_no_exist() {
+        let path = get_db_path();
+        create_dir_if_not_exist(&path);
+        let ppath = Path::new(&path);
+        assert!(ppath.exists());
+    }
+}
+
+#[cfg(test)]
 mod db {
     use crate::{
         cli::{cli_add_task, cli_fin_task, cli_get_tasks},
         db::open_db,
     };
-
-    #[test]
-    fn get_db_path() {
-        use crate::util::get_db_path;
-        get_db_path();
-    }
 
     #[test]
     fn open_connection() {
