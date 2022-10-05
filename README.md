@@ -7,12 +7,18 @@ cli todo tool - add, edit, tag and delete tasks
 ### Binary
 ### Via Cargo
 ### By source
-## Syntax
-### Add a task
-### Mark a task as finished
-### Delete a task
-### List tasks
-### Remove all tasks
+## Basic Usage:
+add a task: 
+```
+opus a "update docs"
+```
+
+finish a task: 
+```
+opus f 1
+```
+
+read more [here](./docs/usage.md).
 ## Contributing
 Before contributing please comply with the contribution guidelines and make sure nobody else is working on your task.
 ### Guidelines:
