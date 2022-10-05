@@ -27,7 +27,7 @@ use chrono::Utc;
 ///```
 ///
 ///```bash
-///opus list "#work"
+///opus ls "#work"
 ///```
 ///
 ///```rust
@@ -52,13 +52,14 @@ pub fn parse_args(args: Vec<String>) -> Cli {
 
     r.top_level_arg = match args[1].as_str() {
         "add" | "a" => ArgumentType::Add,
-        "finish" | "f" => ArgumentType::Finish,
-        "delete" | "d" => ArgumentType::Delete,
-        "list" | "l" => ArgumentType::List,
+        "fin" | "f" => ArgumentType::Finish,
+        "del" | "d" => ArgumentType::Delete,
+        "ls" | "l" => ArgumentType::List,
+        "clear" => ArgumentType::Clear,
         _ => ArgumentType::Unknown,
     };
 
-    r.top_level_arg = if args.len() <= 2 && r.top_level_arg != ArgumentType::List {
+    r.top_level_arg = if args.len() <= 2 && r.top_level_arg != ArgumentType::List && r.top_level_arg != ArgumentType::Clear {
         ArgumentType::Notenough
     } else {
         r.top_level_arg
@@ -68,6 +69,7 @@ pub fn parse_args(args: Vec<String>) -> Cli {
 
     match r.top_level_arg {
         ArgumentType::List => (),
+        ArgumentType::Clear => (),
         ArgumentType::Unknown => panic!(
             "Unknown Argument '{}', run 'opus help' for more info on command syntax.",
             args[1]
@@ -150,4 +152,9 @@ pub fn cli_fin_task(db: &Database, id: String) -> bool {
 
 pub fn cli_get_tasks(db: &Database, q: String) -> Vec<Task> {
     db.get_tasks(q.chars().next().expect("Failure in getting task query"), q)
+}
+
+/// clear the whole database
+pub fn cli_clear(db: &Database) -> bool {
+    db.clear_all_tasks() != 0
 }

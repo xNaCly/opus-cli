@@ -13,6 +13,7 @@ pub const GET_ALL_TASKS: &str = "SELECT * FROM tasks";
 pub const FINISH_TASK_BY_ID: &str = "UPDATE tasks SET finished = 1 WHERE id IS ?";
 pub const GET_TASK_BY_TAG: &str = "SELECT * FROM tasks WHERE tag IS ?";
 pub const GET_TASK_BY_PRIO: &str = "SELECT * FROM tasks WHERE priority IS ?";
+pub const REMOVE_ALL_TASKS: &str = "DELETE FROM tasks";
 pub const INSERT_TASK: &str =
     "INSERT INTO tasks (title, tag, due, priority, finished) VALUES(?,?,?,?,?)";
 
@@ -34,6 +35,9 @@ impl Database {
     ///  - `@`: task due date
     ///
     /// Property is generally the first char of the query. Matching the property type is required to choose the correct database query.
+    ///
+    /// Caviats:
+    /// - this method only returns open tasks (not finished)
     pub fn get_tasks(&self, property: char, mut query: String) -> Vec<Task> {
         let mut sql_query = match property {
             '#' => GET_TASK_BY_TAG,
@@ -43,7 +47,8 @@ impl Database {
             }
             _ => GET_TASK_BY_ID,
         };
-        if query == "list" || query == "l" {
+
+        if query == "ls" || query == "l" {
             sql_query = GET_ALL_TASKS;
         }
 
@@ -52,7 +57,7 @@ impl Database {
             .prepare(sql_query)
             .expect("Failed to prepare SQL statement in querying for tasks");
 
-        if query == "list" || query == "l" {
+        if query == "ls" || query == "l" {
             return stmt
                 .query_map([], |row| {
                     Ok(Task {
@@ -66,6 +71,7 @@ impl Database {
                 })
                 .expect("Failed to query all tasks")
                 .map(|x| x.expect("Couldn't map over tasks returned by database"))
+                .filter(|x| !x.finished)
                 .collect::<Vec<Task>>();
         }
 
@@ -85,6 +91,7 @@ impl Database {
         })
         .expect("Couldn't get task with the given query")
         .map(|x| x.expect("Couldn't map over tasks returned by database"))
+        .filter(|x| !x.finished)
         .collect::<Vec<Task>>()
     }
 
@@ -117,5 +124,11 @@ impl Database {
         self.con
             .execute(FINISH_TASK_BY_ID, [id.to_string()])
             .expect("Couldn't finish task")
+    }
+
+    pub fn clear_all_tasks(&self) -> usize {
+        self.con
+            .execute(REMOVE_ALL_TASKS, [])
+            .expect("Clearing database failed")
     }
 }

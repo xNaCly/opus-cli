@@ -36,7 +36,6 @@ mod db {
     use crate::{
         cli::{cli_add_task, cli_fin_task, cli_get_tasks},
         db::open_db,
-        types::Task,
     };
 
     #[test]
@@ -164,9 +163,8 @@ mod db {
         cli_fin_task(&db, id.clone());
 
         let tasks = db.get_tasks('0', id);
-        let task_res: &Task = tasks.get(0).unwrap();
+        assert_eq!(tasks.len(), 0);
 
-        assert!(task_res.finished);
         db.con.close().expect("Closing Database failed.");
     }
 }

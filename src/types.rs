@@ -4,8 +4,10 @@
 pub enum ArgumentType {
     /// add a new todo
     Add,
-    /// delete a todo
+    /// delete a todo 
     Delete,
+    /// remove all tasks
+    Clear,
     /// mark a todo as finished
     Finish,
     /// list todo matching the query
@@ -14,19 +16,6 @@ pub enum ArgumentType {
     Unknown,
     /// not enough arguments supplied
     Notenough,
-}
-
-impl std::fmt::Display for ArgumentType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            ArgumentType::Add => write!(f, "ADD"),
-            ArgumentType::List => write!(f, "LIST"),
-            ArgumentType::Delete => write!(f, "DELETE"),
-            ArgumentType::Finish => write!(f, "FINISH"),
-            ArgumentType::Unknown => write!(f, "UNKNOWN"),
-            ArgumentType::Notenough => write!(f, "NOTENOUGH"),
-        }
-    }
 }
 
 #[derive(Debug)]

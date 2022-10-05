@@ -31,10 +31,10 @@
 //! ### List tasks
 //!
 //! ```bash
-//! opus list
-//! opus list "#work"   # List all tasks with tag work (#work):
-//! opus list ","       # List all tasks with priority !! (2):
-//! opus list .2        # List task with id 2
+//! opus ls
+//! opus ls "#work"   # List all tasks with tag work (#work):
+//! opus ls ","       # List all tasks with priority !! (2):
+//! opus ls .2        # List task with id 2
 //! ```
 //!
 //! ## Contributing
@@ -70,13 +70,24 @@ fn main() {
             cli_add_task(&db, t);
         }
         ArgumentType::List => {
-            println!("{:#?}", cli_get_tasks(&db, result.input.query.unwrap()));
+            let query = result.input.query.unwrap();
+            let tasks = cli_get_tasks(&db, query.clone());
+            println!("{:#?}", &tasks);
+            println!("--");
+            println!("TODO: {} tasks found matching query: '{}'", tasks.len(), query);
         }
         ArgumentType::Finish => {
             if cli_fin_task(&db, result.input.query.unwrap()) {
                 println!("marked task as finished");
             } else {
                 println!("marking task as finished failed");
+            }
+        }
+        ArgumentType::Clear => {
+            if cli_clear(&db){
+                println!("removed all tasks from database");
+            } else {
+                println!("couldn't remove all tasks from the database");
             }
         }
         _ => panic!("Unknown argument."),
