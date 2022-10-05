@@ -1,6 +1,6 @@
 # opusCli
 
-cli todo tool - add, edit, tag and delete tasks
+*simple to-do manager for power users*
 
 ## Showcase
 ## Installation
