@@ -1,5 +1,5 @@
 use crate::db::Database;
-use crate::types::{ArgumentType, Cli, CliInput, Task, ExportType};
+use crate::types::{ArgumentType, Cli, CliInput, ExportType, Task};
 use chrono::Utc;
 
 /// Converts command line arguments into machine readable format
@@ -59,20 +59,35 @@ pub fn parse_args(args: Vec<String>) -> Cli {
         "export" => {
             let file_name = args[3].to_lowercase();
             match args[2].to_lowercase().as_str() {
-                "json" => ArgumentType::Export{export_type: ExportType::Json, file_name },
-                "csv" => ArgumentType::Export{export_type: ExportType::Csv, file_name },
-                "tsv" => ArgumentType::Export{export_type: ExportType::Tsv, file_name },
-                _ => panic!("Unknown format \"{}\"", args[2].to_lowercase())
+                "json" => ArgumentType::Export {
+                    export_type: ExportType::Json,
+                    file_name,
+                },
+                "csv" => ArgumentType::Export {
+                    export_type: ExportType::Csv,
+                    file_name,
+                },
+                "tsv" => ArgumentType::Export {
+                    export_type: ExportType::Tsv,
+                    file_name,
+                },
+                _ => panic!("Unknown format \"{}\"", args[2].to_lowercase()),
             }
-        },
+        }
         _ => ArgumentType::Unknown,
     };
 
     r.top_level_arg = if (args.len() <= 2
         && r.top_level_arg != ArgumentType::List
-        && r.top_level_arg != ArgumentType::Clear) ||
-        (args.len() <= 3 && matches!(r.top_level_arg, ArgumentType::Export { export_type: _ , file_name: _ }))
-    {
+        && r.top_level_arg != ArgumentType::Clear)
+        || (args.len() <= 3
+            && matches!(
+                r.top_level_arg,
+                ArgumentType::Export {
+                    export_type: _,
+                    file_name: _
+                }
+            )) {
         ArgumentType::Notenough
     } else {
         r.top_level_arg
@@ -83,7 +98,10 @@ pub fn parse_args(args: Vec<String>) -> Cli {
     match &r.top_level_arg {
         ArgumentType::List => (),
         ArgumentType::Clear => (),
-        ArgumentType::Export { export_type: _, file_name: file } => (),
+        ArgumentType::Export {
+            export_type: _,
+            file_name: file,
+        } => (),
         ArgumentType::Unknown => panic!(
             "Unknown Argument '{}', run 'opus help' for more info on command syntax.",
             args[1]

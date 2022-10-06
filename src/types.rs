@@ -6,7 +6,7 @@ use std::fmt;
 pub enum ArgumentType {
     /// add a new todo
     Add,
-    /// delete a todo 
+    /// delete a todo
     Delete,
     /// remove all tasks
     Clear,
@@ -18,7 +18,10 @@ pub enum ArgumentType {
     Unknown,
     /// not enough arguments supplied
     Notenough,
-    Export { export_type: ExportType, file_name: String }
+    Export {
+        export_type: ExportType,
+        file_name: String,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

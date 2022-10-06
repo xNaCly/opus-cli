@@ -36,9 +36,9 @@
 //! opus ls ","       # List all tasks with priority !! (2):
 //! opus ls .2        # List task with id 2
 //! ```
-//! 
+//!
 //! ### Export tasks
-//! 
+//!
 //! ```bash
 //! opus export json data       # Exports all tasks in a data.json file
 //! opus export csv mycsvfile   # mycsvfile.csv
@@ -83,7 +83,11 @@ fn main() {
             let tasks = cli_get_tasks(&db, query.clone());
             println!("{:#?}", &tasks);
             println!("--");
-            println!("TODO: {} tasks found matching query: '{}'", tasks.len(), query);
+            println!(
+                "TODO: {} tasks found matching query: '{}'",
+                tasks.len(),
+                query
+            );
         }
         ArgumentType::Finish => {
             if cli_fin_task(&db, result.input.query.unwrap()) {
@@ -93,20 +97,23 @@ fn main() {
             }
         }
         ArgumentType::Clear => {
-            if cli_clear(&db){
+            if cli_clear(&db) {
                 println!("removed all tasks from database");
             } else {
                 println!("couldn't remove all tasks from the database");
             }
         }
-        // ArgumentType::Export(export_type) => todo!(),
-        ArgumentType::Export { export_type, file_name } => {
+        ArgumentType::Export {
+            export_type,
+            file_name,
+        } => {
             let data = cli_export(&db, export_type);
 
             let file_name_with_extension = format!("{}.{}", file_name, export_type);
-            let mut file = std::fs::File::create(file_name_with_extension).expect("Unable to open file");
+            let mut file =
+                std::fs::File::create(file_name_with_extension).expect("Unable to open file");
             write!(file, "{}", data).expect("Unable to write");
-        },
+        }
         _ => panic!("Unknown argument."),
     }
 
