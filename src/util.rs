@@ -49,10 +49,10 @@ pub fn create_dir_if_not_exist(path: &String) -> bool {
     let path = Path::new(&path);
     let ppath = &path.parent().expect("Couldn't get database path parent");
     if !ppath.exists() {
-        create_dir(ppath).expect("Couldn't create database parent directory");
-        return true;
-    } else if !path.exists() {
-        create_dir(path).expect("Couldn't create database dir");
-    };
+        return match create_dir(ppath) {
+            Ok(res) => true,
+            Err(_) => false,
+        };
+    }
     false
 }
