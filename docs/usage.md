@@ -40,3 +40,14 @@ opus l 1
 # this clears the whole database
 opus clear
 ```
+
+## Export Tasks
+- opus exports all tasks to a specified file
+```bash
+# Exports all tasks in a data.json file
+opus export json data
+# mycsvfile.csv
+opus export csv mycsvfile
+# data.tsv
+opus export tsv data
+```
