@@ -1,51 +1,5 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
-//! # opusCli
-//!
-//! cli todo tool - add, edit, tag and delete tasks
-//!
-//! ## Showcase
-//!
-//! ## Installation
-//!
-//! ## Syntax
-//!
-//! ### Add a task
-//!
-//! ```
-//! opus add "update excelsheet #work @tomorrow ,,,"
-//!           ^^^^^^^^^^^^^^^^^ ^^^^^ ^^^^^^^^^ ^^^
-//!           |                 |     |         |
-//!           |                 |     |         |_ priority
-//!           |                 |     |
-//!           |                 |     |_ due date
-//!           |                 |
-//!           |                 |_ tag
-//!           |_ title
-//! ```
-//!
-//! -   tags are prefixed with a `#` and should contain `_` instead of spaces.
-//! -   due date is prefixed with a `@` and can either be `@today`, `@tomorrow` or a date (`yyyy-mm-dd`)
-//! -   priority is specified using `,` - highest priority is one `,`
-//!
-//! ### List tasks
-//!
-//! ```bash
-//! opus ls
-//! opus ls "#work"   # List all tasks with tag work (#work):
-//! opus ls ","       # List all tasks with priority !! (2):
-//! opus ls .2        # List task with id 2
-//! ```
-//!
-//! ### Export tasks
-//!
-//! ```bash
-//! opus export json data       # Exports all tasks in a data.json file
-//! opus export csv mycsvfile   # mycsvfile.csv
-//! opus export tsv data        # data.tsv
-//! ```
-//!
-//! ## Contributing
 use std::env;
 use std::io::Write;
 
