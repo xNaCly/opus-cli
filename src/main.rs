@@ -113,7 +113,10 @@ fn main() {
             let mut file =
                 std::fs::File::create(file_name_with_extension).expect("Unable to open file");
             write!(file, "{}", data).expect("Unable to write");
-        }
+        },
+        ArgumentType::Delete => {
+            unimplemented!();
+        },
         _ => panic!("Unknown argument."),
     }
 
