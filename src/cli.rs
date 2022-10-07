@@ -57,6 +57,10 @@ pub fn parse_args(args: Vec<String>) -> Cli {
         "ls" | "l" => ArgumentType::List,
         "clear" => ArgumentType::Clear,
         "export" => {
+            if args.len() <= 3 {
+                panic!("Not enough args for export")
+            }
+            
             let file_name = args[3].to_lowercase();
             match args[2].to_lowercase().as_str() {
                 "json" => ArgumentType::Export {
