@@ -30,13 +30,13 @@ mod cli {
             ArgumentType::Finish,
             ArgumentType::List,
         ];
-        for i in 0..4 {
+        for (arg, arg_type) in args.iter().zip(args_types) {
             let r = parse_args(vec![
                 "opus".to_string(),
-                args[i].to_string(),
+                arg.to_string(),
                 "arg2".to_string(),
             ]);
-            assert_eq!(r.top_level_arg, args_types[i]);
+            assert_eq!(r.top_level_arg, arg_type);
         }
     }
 
