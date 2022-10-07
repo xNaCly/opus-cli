@@ -1,7 +1,11 @@
 //! # Opus database wrapper
 use rusqlite::Connection;
 
-use crate::{types::Task, util::create_dir_if_not_exist, util::get_db_path};
+use crate::{
+    types::{ExportType, Task},
+    util::create_dir_if_not_exist,
+    util::get_db_path,
+};
 
 pub struct Database {
     pub con: Connection,
@@ -132,5 +136,33 @@ impl Database {
         self.con
             .execute(REMOVE_ALL_TASKS, [])
             .expect("Clearing database failed")
+    }
+
+    pub fn export(&self, export_type: &ExportType) -> String {
+        let tasks = self.get_tasks('l', "l".to_string());
+
+        let tasks = match export_type {
+            ExportType::Json => {
+                serde_json::to_string(&tasks).map_err(|_| "Exporting failed".to_owned())
+            }
+            _ => {
+                let sep = match export_type {
+                    ExportType::Csv => ",",
+                    _ => "\t",
+                };
+
+                Ok(tasks
+                    .iter()
+                    .map(|t| {
+                        format!(
+                            "{}{sep}{}{sep}{}{sep}{}{sep}{}\n",
+                            t.title, t.tag, t.priority, t.due, t.finished
+                        )
+                    })
+                    .collect::<String>())
+            }
+        };
+
+        tasks.expect("Exporting failed")
     }
 }

@@ -1,5 +1,5 @@
 use crate::db::Database;
-use crate::types::{ArgumentType, Cli, CliInput, Task};
+use crate::types::{ArgumentType, Cli, CliInput, ExportType, Task};
 use chrono::Utc;
 
 /// Converts command line arguments into machine readable format
@@ -56,13 +56,42 @@ pub fn parse_args(args: Vec<String>) -> Cli {
         "del" | "d" => ArgumentType::Delete,
         "ls" | "l" => ArgumentType::List,
         "clear" => ArgumentType::Clear,
+        "export" => {
+            if args.len() <= 3 {
+                panic!("Not enough args for export")
+            }
+
+            let file_name = args[3].to_lowercase();
+            match args[2].to_lowercase().as_str() {
+                "json" => ArgumentType::Export {
+                    export_type: ExportType::Json,
+                    file_name,
+                },
+                "csv" => ArgumentType::Export {
+                    export_type: ExportType::Csv,
+                    file_name,
+                },
+                "tsv" => ArgumentType::Export {
+                    export_type: ExportType::Tsv,
+                    file_name,
+                },
+                _ => panic!("Unknown format \"{}\"", args[2].to_lowercase()),
+            }
+        }
         _ => ArgumentType::Unknown,
     };
 
-    r.top_level_arg = if args.len() <= 2
+    r.top_level_arg = if (args.len() <= 2
         && r.top_level_arg != ArgumentType::List
-        && r.top_level_arg != ArgumentType::Clear
-    {
+        && r.top_level_arg != ArgumentType::Clear)
+        || (args.len() <= 3
+            && matches!(
+                r.top_level_arg,
+                ArgumentType::Export {
+                    export_type: _,
+                    file_name: _
+                }
+            )) {
         ArgumentType::Notenough
     } else {
         r.top_level_arg
@@ -70,9 +99,13 @@ pub fn parse_args(args: Vec<String>) -> Cli {
 
     let mut task: Vec<&str> = vec![];
 
-    match r.top_level_arg {
+    match &r.top_level_arg {
         ArgumentType::List => (),
         ArgumentType::Clear => (),
+        ArgumentType::Export {
+            export_type: _,
+            file_name: file,
+        } => (),
         ArgumentType::Unknown => panic!(
             "Unknown Argument '{}', run 'opus help' for more info on command syntax.",
             args[1]
@@ -160,4 +193,8 @@ pub fn cli_get_tasks(db: &Database, q: String) -> Vec<Task> {
 /// clear the whole database
 pub fn cli_clear(db: &Database) -> bool {
     db.clear_all_tasks() != 0
+}
+
+pub fn cli_export(db: &Database, export_type: &ExportType) -> String {
+    db.export(export_type)
 }

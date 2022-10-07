@@ -1,9 +1,11 @@
 #[cfg(test)]
 mod cli {
+    use std::vec;
+
     use crate::{
         cli::{cli_add_task, cli_fin_task, cli_get_tasks, parse_args},
         db::open_db,
-        types::ArgumentType,
+        types::{ArgumentType, Task},
     };
     #[test]
     fn parse_arguments_add() {
@@ -30,13 +32,56 @@ mod cli {
             ArgumentType::Finish,
             ArgumentType::List,
         ];
-        for i in 0..4 {
+        for (arg, arg_type) in args.iter().zip(args_types) {
             let r = parse_args(vec![
                 "opus".to_string(),
-                args[i].to_string(),
+                arg.to_string(),
                 "arg2".to_string(),
             ]);
-            assert_eq!(r.top_level_arg, args_types[i]);
+            assert_eq!(r.top_level_arg, arg_type);
+        }
+    }
+
+    #[test]
+    fn parse_export() {
+        let inputs = [
+            vec![
+                "opus".to_owned(),
+                "export".to_owned(),
+                "csv".to_owned(),
+                "tmp1".to_owned(),
+            ],
+            vec![
+                "opus".to_owned(),
+                "export".to_owned(),
+                "tsv".to_owned(),
+                "tmp2".to_owned(),
+            ],
+            vec![
+                "opus".to_owned(),
+                "export".to_owned(),
+                "json".to_owned(),
+                "tmp3".to_owned(),
+            ],
+        ];
+
+        let expected = [
+            ArgumentType::Export {
+                export_type: crate::types::ExportType::Csv,
+                file_name: "tmp1".to_owned(),
+            },
+            ArgumentType::Export {
+                export_type: crate::types::ExportType::Tsv,
+                file_name: "tmp2".to_owned(),
+            },
+            ArgumentType::Export {
+                export_type: crate::types::ExportType::Json,
+                file_name: "tmp3".to_owned(),
+            },
+        ];
+
+        for (input, expected) in inputs.iter().zip(expected) {
+            assert_eq!(parse_args(input.to_owned()).top_level_arg, expected)
         }
     }
 
@@ -50,6 +95,33 @@ mod cli {
     fn not_enough_arguments_ii() {
         parse_args(vec!["opus".to_string(), "add".to_string()]);
     }
+
+    #[test]
+    #[should_panic]
+    fn not_enough_arguments_export_1() {
+        parse_args(vec!["opus".to_string(), "export".to_string()]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn not_enough_arguments_export_2() {
+        parse_args(vec![
+            "opus".to_string(),
+            "export".to_string(),
+            "csv".to_owned(),
+        ]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn not_enough_arguments_export_3() {
+        parse_args(vec![
+            "opus".to_string(),
+            "export".to_string(),
+            "file".to_owned(),
+        ]);
+    }
+
     #[test]
     fn insert_task() {
         let r = parse_args(vec![
@@ -163,6 +235,28 @@ mod cli {
         db.clear_all_tasks();
         let tasks = db.get_tasks('l', "ls".to_string()).len();
         assert_eq!(tasks, 0);
+    }
+
+    #[test]
+    fn export_tasks() {
+        let db = open_db();
+
+        db.create_table_if_missing();
+        db.clear_all_tasks();
+        let output = db.export(&crate::types::ExportType::Csv);
+        assert_eq!(output, "");
+
+        db.insert_task(Task {
+            id: Some(1_usize),
+            title: "title".to_owned(),
+            tag: "tag".to_owned(),
+            priority: 2_usize,
+            due: "due".to_owned(),
+            finished: false,
+        });
+
+        let output = db.export(&crate::types::ExportType::Csv);
+        assert_eq!(output, "title,tag,2,due,false\n");
     }
 }
 
