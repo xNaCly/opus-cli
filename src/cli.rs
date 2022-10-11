@@ -124,7 +124,6 @@ pub fn cli_add_task(db: &Database, mut t: Task) {
             _ => t.due,
         }
     }
-
     let task = Task {
         id: None,
         title: t.title,

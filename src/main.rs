@@ -35,7 +35,9 @@ fn main() {
         ArgumentType::List => {
             let query = result.input.query.unwrap();
             let tasks = cli_get_tasks(&db, query.clone());
-            println!("{:#?}", &tasks);
+            for task in &tasks {
+                println!("{}", task);
+            }
             println!("--");
             println!(
                 "TODO: {} tasks found matching query: '{}'",
