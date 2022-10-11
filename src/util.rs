@@ -4,6 +4,15 @@ use std::fs::create_dir;
 use std::path::Path;
 
 const CONFIG_PATH: &str = "/opus/opus.db";
+pub const OPUS_HELP: &str = "Usage: opus [command] [params]
+Commands:
+    list  \t<query>
+    add   \t<task> <tag> <priority> <date>
+    finish\t<id>
+    delete\t<id>
+    export\t<format> <filename>
+    clear
+";
 
 /// Get system dependent path to config files
 ///
@@ -56,3 +65,4 @@ pub fn create_dir_if_not_exist(path: &String) -> bool {
     }
     false
 }
+

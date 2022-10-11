@@ -1,6 +1,7 @@
 use crate::db::Database;
 use crate::types::{ArgumentType, Cli, CliInput, ExportType, Task};
 use chrono::Utc;
+use crate::util::OPUS_HELP;
 
 pub fn parse_args(args: Vec<String>) -> Cli {
     let mut r: Cli = Cli {
@@ -11,7 +12,17 @@ pub fn parse_args(args: Vec<String>) -> Cli {
         },
     };
 
+    if args.len() == 1 {
+        r.top_level_arg = ArgumentType::List;
+        r.input.query = Some("list".to_string());
+        return r;
+    }
+
     r.top_level_arg = match args[1].as_str() {
+        "help" | "h" => {
+            println!("{}", OPUS_HELP);
+            std::process::exit(1);
+        },
         "add" | "a" => ArgumentType::Add,
         "finish" | "f" => ArgumentType::Finish,
         "delete" | "d" => ArgumentType::Delete,
@@ -71,7 +82,10 @@ pub fn parse_args(args: Vec<String>) -> Cli {
             "Unknown Argument '{}', run 'opus help' for more info on command syntax.",
             args[1]
         ),
-        ArgumentType::Notenough => panic!("Not enough Arguments."),
+        ArgumentType::Notenough => {
+            println!("{}", OPUS_HELP);
+            panic!("Not enough Arguments.");
+        }
         _ => task = args[2].trim().split(' ').collect(),
     }
 
