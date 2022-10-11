@@ -1,5 +1,5 @@
 [package]
-name = "opus_cli"
+name = "opus"
 version = "0.1.0-alpha"
 edition = "2021"
 
