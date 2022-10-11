@@ -1,38 +1,131 @@
 # opusCli
 
-*simple to-do manager for power users*
+_simple to-do manager for power users_
 
-## Showcase
 ## Installation
+
 ### Binary
-### Via Cargo
-### By source
-## Basic Usage:
-add a task: 
-```
-opus a "update docs"
+
+`opus` can be installed via the provided binary files in the release section, [here](https://github.com/xNaCly/opusCli/releases).
+
+Select the latest release, add the `opus` executable to a directory which is registered in the path variable and you're
+good to go.
+
+### From source
+
+> Make sure [cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) and
+> [rustup](https://www.rust-lang.org/tools/install) are installed
+
+```bash
+git clone https://github.com/xnacly/opusCli
+cargo build --release
+./target/release/opus
 ```
 
-finish a task: 
+Cargo will now build `opus` for the target you're currently using as a operating system. The resulting executable can be
+found in the `target` directory: `target/release/opus`
+
+## Usage
+
+### Add a task
+
+-   title is the only required value
+-   opus replaces `@tomorrow` and `@today` with the corresponding dates in `YYYY-mm-DD` notation
+
+```bash
+# add a new task with the following properties:
+# title: review and merge pr 5
+# due: @tomorrow
+# tag: #github
+# priority: 3
+opus add "review and merge pr 5 @tomorrow #github ,,,"
+# add a new task with the given title
+opus a "review and merge pr 5"
 ```
+
+### List tasks
+
+-   opus hides finished tasks from the `opus ls` command
+
+```bash
+# list all tasks
+opus list
+# list all task with the tag #work
+opus list "#work"
+# list all tasks with the priority ,,,
+opus list ",,,"
+# list the task with the id 1
+opus list 1
+# same as above
+opus l 1
+```
+
+### Mark a task as finished
+
+-   opus hides finished tasks from the `opus ls` command
+-   contrary to `opus ls`, `opus fin` does only accept a tasks id as the argument
+
+```bash
+# mark the task with id=1 as finished
+opus finish 1
+# same as above
 opus f 1
 ```
 
-read more [here](./docs/usage.md).
+### Remove all tasks
+
+```bash
+# this clears the whole database
+opus clear
+```
+
+### Export Tasks
+
+-   opus exports all tasks to a specified file
+
+```bash
+# exports all tasks in the data.json file
+opus export json data
+# export all tasks in the mycsvfile.csv file
+opus export csv mycsvfile
+# data.tsv
+opus export tsv data
+```
+
+### Delete a task
+
+-   just like `opus finish`, `opus delete` only accepts a tasks id as the argument
+
+```bash
+# delete the task with id=1
+opus delete 1
+opus d 1
+```
+
 ## Contributing
+
 Before contributing please comply with the contribution guidelines and make sure nobody else is working on your task.
+
 ### Guidelines:
-- Write readable, correct and simple code (Keep It Simple and Stupid)
-- Try to avoid or at best document incomprehensible code
-- Comply with the [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/) Messages Standard (in commits and pr's)
-- Avoid merge commits (try: [rebase](https://git-scm.com/book/en/v2/Git-Branching-Rebasing))
+
+-   Write readable, correct and simple code (Keep It Simple and Stupid)
+-   Try to avoid or at best document incomprehensible code
+-   Comply with the [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/) Messages Standard (in commits
+    and pr's)
+-   Avoid merge commits (try: [rebase](https://git-scm.com/book/en/v2/Git-Branching-Rebasing))
+
 ### Getting started
-Clone: 
+
+Clone:
+
 ```
 $ git clone https://github.com/xnacly/opuscli.git
 ```
+
 Run tests:
+
 ```
 $ cargo test
 ```
+
 If none fail: you're good to go.
