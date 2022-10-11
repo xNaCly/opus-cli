@@ -96,11 +96,6 @@ mod cli {
 
     #[test]
     #[should_panic]
-    fn not_enough_arguments() {
-        parse_args(vec!["opus".to_string()]);
-    }
-    #[test]
-    #[should_panic]
     fn not_enough_arguments_ii() {
         parse_args(vec!["opus".to_string(), "add".to_string()]);
     }
