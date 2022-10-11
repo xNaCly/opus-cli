@@ -67,10 +67,14 @@ fn main() {
             let mut file =
                 std::fs::File::create(file_name_with_extension).expect("Unable to open file");
             write!(file, "{}", data).expect("Unable to write");
-        },
+        }
         ArgumentType::Delete => {
-            unimplemented!();
-        },
+            if cli_del_task(&db, result.input.query.unwrap()) {
+                println!("deleted task");
+            } else {
+                println!("couldn't delete task");
+            }
+        }
         _ => panic!("Unknown argument."),
     }
 

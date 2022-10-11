@@ -24,7 +24,8 @@ mod cli {
 
     #[test]
     fn parse_arguments_args_type() {
-        let args = ["add", "del", "clear", "fin", "ls"];
+        let args = ["add", "delete", "clear", "finish", "list", "export"];
+        let args1 = ["a", "d", "clear", "f", "l", "export"];
         let args_types = [
             ArgumentType::Add,
             ArgumentType::Delete,
@@ -32,10 +33,18 @@ mod cli {
             ArgumentType::Finish,
             ArgumentType::List,
         ];
-        for (arg, arg_type) in args.iter().zip(args_types) {
+        for (arg, arg_type) in args.iter().zip(args_types.clone()) {
             let r = parse_args(vec![
                 "opus".to_string(),
                 arg.to_string(),
+                "arg2".to_string(),
+            ]);
+            assert_eq!(r.top_level_arg, arg_type);
+        }
+        for (arg1, arg_type) in args.iter().zip(args_types) {
+            let r = parse_args(vec![
+                "opus".to_string(),
+                arg1.to_string(),
                 "arg2".to_string(),
             ]);
             assert_eq!(r.top_level_arg, arg_type);
@@ -229,11 +238,38 @@ mod cli {
 
     #[test]
     fn clear_tasks() {
+        let r = parse_args(vec![
+            "opus".to_string(),
+            "add".to_string(),
+            "update excel sheet #work @today ,,,".to_string(),
+        ]);
+        let task = r.input.task.unwrap();
         let db = open_db();
 
         db.create_table_if_missing();
         db.clear_all_tasks();
-        let tasks = db.get_tasks('l', "ls".to_string()).len();
+
+        let tasks = db.get_tasks('l', "l".to_string()).len();
+        assert_eq!(tasks, 0);
+    }
+
+    #[test]
+    fn delete_task() {
+        let r = parse_args(vec![
+            "opus".to_string(),
+            "add".to_string(),
+            "should be deleted #delete @today ,,,".to_string(),
+        ]);
+        let task = r.input.task.unwrap();
+        let db = open_db();
+
+        db.create_table_if_missing();
+
+        cli_add_task(&db, task);
+        let id = db.con.last_insert_rowid().to_string();
+        db.delete_task(id.parse::<usize>().unwrap());
+
+        let tasks = cli_get_tasks(&db, "#delete".to_string()).len();
         assert_eq!(tasks, 0);
     }
 

@@ -2,45 +2,6 @@ use crate::db::Database;
 use crate::types::{ArgumentType, Cli, CliInput, ExportType, Task};
 use chrono::Utc;
 
-/// Converts command line arguments into machine readable format
-///
-///```bash
-///opus add "update excel #work @tomorrow ,,,"
-///```
-///
-///```rust
-///Cli {
-///    top_level_arg: Add,
-///    input: CliInput {
-///        task: Some(
-///            Task {
-///                id: None,
-///                title: "update excel",
-///                tag: "#work",
-///                priority: 3,
-///                due: "@tomorrow",
-///            },
-///        ),
-///        query: None,
-///    },
-///}
-///```
-///
-///```bash
-///opus ls "#work"
-///```
-///
-///```rust
-///&r = Cli {
-///    top_level_arg: List,
-///    input: CliInput {
-///        task: None,
-///        query: Some(
-///            "#work",
-///        ),
-///    },
-///}
-///```
 pub fn parse_args(args: Vec<String>) -> Cli {
     let mut r: Cli = Cli {
         top_level_arg: ArgumentType::Unknown,
@@ -176,12 +137,10 @@ pub fn cli_add_task(db: &Database, mut t: Task) {
     db.insert_task(task);
 }
 
-/// remove the task with the given id from the database
-pub fn cli_del_task(id: String) {
-    // todo: delete a task unimplemented!();
+pub fn cli_del_task(db: &Database, id: String) -> bool {
+    db.delete_task(id.parse::<usize>().expect("Given id wasn't an integer")) != 0
 }
 
-/// finish the task with the given id in the database
 pub fn cli_fin_task(db: &Database, id: String) -> bool {
     db.mark_task_as_finished(id.parse::<usize>().expect("Given id wasn't an integer")) != 0
 }
@@ -190,7 +149,6 @@ pub fn cli_get_tasks(db: &Database, q: String) -> Vec<Task> {
     db.get_tasks(q.chars().next().expect("Failure in getting task query"), q)
 }
 
-/// clear the whole database
 pub fn cli_clear(db: &Database) -> bool {
     db.clear_all_tasks() != 0
 }

@@ -13,6 +13,7 @@ pub struct Database {
 
 pub const CREATE_TABLE_IF_MISSING: &str = "CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY, title TEXT, tag TEXT, due TEXT, priority INTEGER, finished INTEGER)";
 pub const GET_TASK_BY_ID: &str = "SELECT * FROM tasks WHERE id IS ?";
+pub const DELETE_TASK_BY_ID: &str = "DELETE FROM tasks WHERE id IS ?";
 pub const GET_ALL_TASKS: &str = "SELECT * FROM tasks";
 pub const FINISH_TASK_BY_ID: &str = "UPDATE tasks SET finished = 1 WHERE id IS ?";
 pub const GET_TASK_BY_TAG: &str = "SELECT * FROM tasks WHERE tag IS ?";
@@ -52,7 +53,7 @@ impl Database {
             _ => GET_TASK_BY_ID,
         };
 
-        if query == "ls" || query == "l" {
+        if query == "list" || query == "l" {
             sql_query = GET_ALL_TASKS;
         }
 
@@ -61,7 +62,7 @@ impl Database {
             .prepare(sql_query)
             .expect("Failed to prepare SQL statement in querying for tasks");
 
-        if query == "ls" || query == "l" {
+        if query == "list" || query == "l" {
             return stmt
                 .query_map([], |row| {
                     Ok(Task {
@@ -132,6 +133,16 @@ impl Database {
             .expect("Couldn't finish task")
     }
 
+    /// deletes a task with the given id from the database
+    ///
+    /// returns: amount of rows affected
+    pub fn delete_task(&self, id: usize) -> usize {
+        self.con
+            .execute(DELETE_TASK_BY_ID, [id])
+            .expect("deleting task with given id failed")
+    }
+
+    /// removes all tasks from the database
     pub fn clear_all_tasks(&self) -> usize {
         self.con
             .execute(REMOVE_ALL_TASKS, [])
