@@ -22,13 +22,13 @@ opus a "review and merge pr 5"
 
 ```bash
 # list all tasks
-opus ls
+opus list
 # list all task with the tag #work
-opus ls "#work"
+opus list "#work"
 # list all tasks with the priority ,,,
-opus ls ",,,"
+opus list ",,,"
 # list the task with the id 1
-opus ls 1
+opus list 1
 # same as above
 opus l 1
 ```
@@ -36,11 +36,11 @@ opus l 1
 ## Mark a task as finished
 
 -   opus hides finished tasks from the `opus ls` command
--   contrary to `opus ls`, `opus fin` does only accepts task ids as the argument
+-   contrary to `opus ls`, `opus fin` does only accept a tasks id as the argument
 
 ```bash
 # mark the task with id=1 as finished
-opus fin 1
+opus finish 1
 # same as above
 opus f 1
 ```
@@ -66,3 +66,11 @@ opus export tsv data
 ```
 
 ## Delete a task
+
+-   just like `opus finish`, `opus delete` only accepts a tasks id as the argument
+
+```bash
+# delete the task with id=1
+opus delete 1
+opus d 1
+```

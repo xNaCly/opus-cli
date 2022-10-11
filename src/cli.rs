@@ -52,9 +52,9 @@ pub fn parse_args(args: Vec<String>) -> Cli {
 
     r.top_level_arg = match args[1].as_str() {
         "add" | "a" => ArgumentType::Add,
-        "fin" | "f" => ArgumentType::Finish,
-        "del" | "d" => ArgumentType::Delete,
-        "ls" | "l" => ArgumentType::List,
+        "finish" | "f" => ArgumentType::Finish,
+        "delete" | "d" => ArgumentType::Delete,
+        "list" | "l" => ArgumentType::List,
         "clear" => ArgumentType::Clear,
         "export" => {
             if args.len() <= 3 {
