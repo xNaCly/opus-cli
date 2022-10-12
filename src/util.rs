@@ -34,21 +34,21 @@ pub fn get_db_path() -> String {
         Err(e) => "".to_string(),
     };
 
-    if !opus_path.is_empty() {
-        return opus_path;
-    };
-
-    let mut path_prefix = match OS {
-        "linux" | "macos" => match var("XDG_CONFIG_HOME") {
-            Ok(r) => r,
-            Err(e) => var("HOME")
-                .expect("$HOME variable not set, is your operating system configured correctly? Try setting the $OPUS_PATH env variable to a path which opus can access."),
-        },
-        "windows" => match var("LOCALAPPDATA") {
-            Ok(r) => r,
-            Err(e) => "/".to_string(),
-        },
-      _ => panic!("Couldn't find a config file implementation for your system, consider setting the $OPUS_PATH or %OPUS_PATH% system variable to point opus to the desired config folder - otherwise opus won't work.")
+    let mut path_prefix = if opus_path.is_empty() {
+        match OS {
+          "linux" | "macos" => match var("XDG_CONFIG_HOME") {
+              Ok(r) => r,
+              Err(e) => var("HOME")
+                  .expect("$HOME variable not set, is your operating system configured correctly? Try setting the $OPUS_PATH env variable to a path which opus can access."),
+          },
+          "windows" => match var("LOCALAPPDATA") {
+              Ok(r) => r,
+              Err(e) => "/".to_string(),
+          },
+          _ => panic!("Couldn't find a config file implementation for your system, consider setting the $OPUS_PATH or %OPUS_PATH% system variable to point opus to the desired config folder - otherwise opus won't work.")
+        }
+    } else {
+        opus_path
     };
     path_prefix.push_str(CONFIG_PATH);
     path_prefix
@@ -58,11 +58,11 @@ pub fn create_dir_if_not_exist(path: &String) -> bool {
     let path = Path::new(&path);
     let ppath = &path.parent().expect("Couldn't get database path parent");
     if !ppath.exists() {
-        return match create_dir(ppath) {
+        match create_dir(ppath) {
             Ok(res) => true,
             Err(_) => false,
-        };
+        }
+    } else {
+        true
     }
-    false
 }
-

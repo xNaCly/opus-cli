@@ -2,13 +2,14 @@
 
 _simple to-do manager for power users_
 
-- [Roadmap](https://github.com/xNaCly/opusCli/milestone/2)
+-   [Roadmap](https://github.com/xNaCly/opusCli/milestone/2)
 
 ## Installation
 
 ### Binary
 
-`opus` can be installed via the provided binary files in the release section, [here](https://github.com/xNaCly/opusCli/releases).
+`opus` can be installed via the provided binary files in the release section,
+[here](https://github.com/xNaCly/opusCli/releases).
 
 Select the latest release, add the `opus` executable to a directory which is registered in the path variable and you're
 good to go.
@@ -103,6 +104,29 @@ opus export tsv data
 opus delete 1
 opus d 1
 ```
+
+## Configuration
+
+### The `OPUS_PATH` env variable
+By default `opus` decides where to store its database based on your operating system.
+Currently opus supports automatically figuring out where to store the database on windows, linux and macos.
+
+- Linux and Macos: `$HOME/opus/opus.db` or `$XDG_CONFIG_HOME/opus/opus.db`
+- Windows: `%LOCALAPPDATA%/opus/opus.db`
+
+For use cases which force the use of a different location, opus honors the `OPUS_PATH` environment variable.
+Set this variable and override the above paths.:
+
+- Linux:
+*add to .bashrc (or your shells config file)*
+```
+set OPUS_PATH=~/.config # opus will create and use ~/.config/opus/opus.db
+```
+
+- Windows:
+Add to your system environment variables *[guide](https://geekflare.com/system-environment-variables-in-windows/)*.
+
+> Opus will create the `opus/opus.db` file and directory in the directory specified in the `OPUS_PATH` variable
 
 ## Contributing
 

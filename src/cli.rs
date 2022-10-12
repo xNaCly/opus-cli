@@ -1,7 +1,7 @@
 use crate::db::Database;
 use crate::types::{ArgumentType, Cli, CliInput, ExportType, Task};
-use chrono::Utc;
 use crate::util::OPUS_HELP;
+use chrono::Utc;
 
 pub fn parse_args(args: Vec<String>) -> Cli {
     let mut r: Cli = Cli {
@@ -22,7 +22,7 @@ pub fn parse_args(args: Vec<String>) -> Cli {
         "help" | "h" => {
             println!("{}", OPUS_HELP);
             std::process::exit(1);
-        },
+        }
         "add" | "a" => ArgumentType::Add,
         "finish" | "f" => ArgumentType::Finish,
         "delete" | "d" => ArgumentType::Delete,
