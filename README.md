@@ -2,6 +2,8 @@
 
 _simple to-do manager for power users_
 
+- [Roadmap](https://github.com/xNaCly/opusCli/milestone/2)
+
 ## Installation
 
 ### Binary
