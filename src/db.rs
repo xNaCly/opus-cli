@@ -23,9 +23,15 @@ pub const INSERT_TASK: &str =
     "INSERT INTO tasks (title, tag, due, priority, finished) VALUES(?,?,?,?,?)";
 
 pub fn open_db() -> Database {
-    let path = get_db_path();
-    create_dir_if_not_exist(&path);
-    match Connection::open(path) {
+    let con = if cfg!(test) {
+        Connection::open_in_memory()
+    } else {
+        let path = get_db_path();
+        create_dir_if_not_exist(&path);
+        Connection::open(path)
+    };
+
+    match con {
         Ok(con) => Database { con },
         Err(_) => panic!("Couldn't open database!"),
     }

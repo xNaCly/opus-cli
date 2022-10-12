@@ -242,7 +242,6 @@ mod cli {
         let db = open_db();
 
         db.create_table_if_missing();
-        db.clear_all_tasks();
 
         let tasks = db.get_tasks('l', "l".to_string()).len();
         assert_eq!(tasks, 0);
@@ -273,7 +272,6 @@ mod cli {
         let db = open_db();
 
         db.create_table_if_missing();
-        db.clear_all_tasks();
         let output = db.export(&crate::types::ExportType::Csv);
         assert_eq!(output, "");
 
