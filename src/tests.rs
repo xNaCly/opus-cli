@@ -242,6 +242,8 @@ mod cli {
         let db = open_db();
 
         db.create_table_if_missing();
+        db.insert_task(task);
+        db.clear_all_tasks();
 
         let tasks = db.get_tasks('l', "l".to_string()).len();
         assert_eq!(tasks, 0);
@@ -303,9 +305,9 @@ mod util {
     #[test]
     fn create_dir_if_no_exist() {
         let path = get_db_path();
-        create_dir_if_not_exist(&path);
+        assert!(create_dir_if_not_exist(&path));
         let ppath = Path::new(&path);
-        assert!(ppath.exists());
+        assert!(ppath.parent().expect("Couldn't get directory of db file").exists());
     }
 }
 
