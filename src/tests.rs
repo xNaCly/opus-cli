@@ -242,6 +242,7 @@ mod cli {
         let db = open_db();
 
         db.create_table_if_missing();
+        db.insert_task(task);
         db.clear_all_tasks();
 
         let tasks = db.get_tasks('l', "l".to_string()).len();
