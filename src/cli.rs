@@ -1,5 +1,6 @@
 use crate::db::Database;
 use crate::types::{ArgumentType, Cli, CliInput, ExportType, Task};
+use crate::util::OPUS_HELP;
 use chrono::Utc;
 
 pub fn parse_args(args: Vec<String>) -> Cli {
@@ -19,6 +20,7 @@ pub fn parse_args(args: Vec<String>) -> Cli {
 
     r.top_level_arg = match args[1].as_str() {
         "help" | "h" => {
+            println!("{}", OPUS_HELP);
             std::process::exit(1);
         }
         "add" | "a" => ArgumentType::Add,
@@ -81,6 +83,7 @@ pub fn parse_args(args: Vec<String>) -> Cli {
             args[1]
         ),
         ArgumentType::Notenough => {
+            println!("{}", OPUS_HELP);
             panic!("Not enough Arguments.");
         }
         _ => task = args[2].trim().split(' ').collect(),
