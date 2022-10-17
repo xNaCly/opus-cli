@@ -49,7 +49,7 @@ pub struct CliInput {
     pub query: Option<String>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, PartialEq, Eq, Clone)]
 pub struct Task {
     pub id: Option<usize>,
     pub title: String,

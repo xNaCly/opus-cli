@@ -75,169 +75,179 @@ mod cli {
     //     ]);
     // }
 
-    // #[test]
-    // fn insert_task() {
-    //     let r = parse_args(vec![
-    //         "opus".to_string(),
-    //         "add".to_string(),
-    //         "update excel sheet #work @today ,,,".to_string(),
-    //     ]);
-    //     let task = r.input.task.unwrap();
-    //     let db = open_db();
-    //     db.create_table_if_missing();
-    //     cli_add_task(&db, task);
-    //     db.con.close().expect("Closing Database failed.");
-    // }
+    use crate::cli::{cli_clear, cli_del_task, cli_fin_task, cli_get_tasks};
 
-    // #[test]
-    // fn get_task_by_id() {
-    //     let r = parse_args(vec![
-    //         "opus".to_string(),
-    //         "add".to_string(),
-    //         "update excel sheet #work @today ,,,".to_string(),
-    //     ]);
-    //     let task = r.input.task.unwrap();
-    //     let db = open_db();
-    //     db.create_table_if_missing();
+    #[test]
+    fn insert_task() {
+        use crate::cli::cli_add_task;
+        use crate::{db::open_db, types::Task};
 
-    //     cli_add_task(&db, task);
-    //     let tasks = cli_get_tasks(&db, db.con.last_insert_rowid().to_string());
-    //     let task = tasks.get(0).unwrap();
+        let task = Task::from(String::from("update excel sheet #work @today .5"));
+        let db = open_db();
 
-    //     assert_eq!(task.title, "update excel sheet");
-    //     assert_eq!(task.tag, "#work");
-    //     assert_eq!(task.priority, 3);
+        db.create_table_if_missing();
+        cli_add_task(&db, task);
 
-    //     db.con.close().expect("Closing Database failed.");
-    // }
+        db.con.close().expect("Closing Database failed.");
+    }
 
-    // #[test]
-    // fn get_task_by_tag() {
-    //     let r = parse_args(vec![
-    //         "opus".to_string(),
-    //         "add".to_string(),
-    //         "update excel sheet #work @today ,,,".to_string(),
-    //     ]);
-    //     let task = r.input.task.unwrap();
+    #[test]
+    fn get_task_by_id() {
+        use crate::cli::cli_add_task;
+        use crate::{db::open_db, types::Task};
 
-    //     let db = open_db();
-    //     db.create_table_if_missing();
+        let task = Task::from(String::from("update excel sheet #work @today .5"));
+        let db = open_db();
 
-    //     cli_add_task(&db, task);
-    //     let tasks = cli_get_tasks(&db, "#work".to_string());
-    //     let task = tasks.get(0).unwrap();
+        db.create_table_if_missing();
+        cli_add_task(&db, task.clone());
 
-    //     assert_eq!(task.title, "update excel sheet");
-    //     assert_eq!(task.tag, "#work");
-    //     assert_eq!(task.priority, 3);
+        let last_id = db.con.last_insert_rowid();
 
-    //     db.con.close().expect("Closing Database failed.");
-    // }
+        let tasks = cli_get_tasks(&db, last_id.to_string(), false);
+        let task1 = tasks.get(0).unwrap();
 
-    // #[test]
-    // fn get_task_by_prio() {
-    //     let r = parse_args(vec![
-    //         "opus".to_string(),
-    //         "add".to_string(),
-    //         "update excel sheet #work @today ,,,".to_string(),
-    //     ]);
-    //     let task = r.input.task.unwrap();
+        assert_eq!(task.title, task1.title);
+        assert_eq!(task.tag, task1.tag);
+        assert_eq!(task.priority, task1.priority);
+        assert_eq!(task.due, task1.due);
+        assert_eq!(task.finished, task1.finished);
 
-    //     let db = open_db();
-    //     db.create_table_if_missing();
+        db.con.close().expect("Closing Database failed.");
+    }
 
-    //     cli_add_task(&db, task);
-    //     let tasks = cli_get_tasks(&db, ",,,".to_string());
-    //     let task = tasks.get(0).unwrap();
+    #[test]
+    fn get_task_by_tag() {
+        use crate::cli::cli_add_task;
+        use crate::{db::open_db, types::Task};
 
-    //     assert_eq!(task.title, "update excel sheet");
-    //     assert_eq!(task.tag, "#work");
-    //     assert_eq!(task.priority, 3);
+        let task = Task::from(String::from("update excel sheet #test @today .5"));
+        let db = open_db();
 
-    //     db.con.close().expect("Closing Database failed.");
-    // }
+        db.create_table_if_missing();
+        cli_add_task(&db, task.clone());
 
-    // #[test]
-    // fn finish_task() {
-    //     let r = parse_args(vec![
-    //         "opus".to_string(),
-    //         "add".to_string(),
-    //         "update excel sheet #work @today ,,,".to_string(),
-    //     ]);
-    //     let task = r.input.task.unwrap();
-    //     let db = open_db();
+        let tasks = cli_get_tasks(&db, "#test".to_string(), false);
+        let task1 = tasks.get(0).unwrap();
 
-    //     db.create_table_if_missing();
+        assert_eq!(task.title, task1.title);
+        assert_eq!(task.tag, task1.tag);
+        assert_eq!(task.priority, task1.priority);
+        assert_eq!(task.due, task1.due);
+        assert_eq!(task.finished, task1.finished);
 
-    //     cli_add_task(&db, task);
-    //     let id = db.con.last_insert_rowid().to_string();
+        db.con.close().expect("Closing Database failed.");
+    }
 
-    //     cli_fin_task(&db, id.clone());
+    #[test]
+    fn get_task_by_prio() {
+        use crate::cli::cli_add_task;
+        use crate::{db::open_db, types::Task};
 
-    //     let tasks = db.get_tasks('0', id);
-    //     assert_eq!(tasks.len(), 0);
+        let task = Task::from(String::from("update excel sheet #work @today .18"));
+        let db = open_db();
 
-    //     db.con.close().expect("Closing Database failed.");
-    // }
+        db.create_table_if_missing();
+        cli_add_task(&db, task.clone());
 
-    // #[test]
-    // fn clear_tasks() {
-    //     let r = parse_args(vec![
-    //         "opus".to_string(),
-    //         "add".to_string(),
-    //         "update excel sheet #work @today ,,,".to_string(),
-    //     ]);
-    //     let task = r.input.task.unwrap();
-    //     let db = open_db();
+        let tasks = cli_get_tasks(&db, ".18".to_string(), false);
+        let task1 = tasks.get(0).unwrap();
 
-    //     db.create_table_if_missing();
-    //     db.insert_task(task);
-    //     db.clear_all_tasks();
+        assert_eq!(task.title, task1.title);
+        assert_eq!(task.tag, task1.tag);
+        assert_eq!(task.priority, task1.priority);
+        assert_eq!(task.due, task1.due);
+        assert_eq!(task.finished, task1.finished);
 
-    //     let tasks = db.get_tasks('l', "l".to_string()).len();
-    //     assert_eq!(tasks, 0);
-    // }
+        db.con.close().expect("Closing Database failed.");
+    }
 
-    // #[test]
-    // fn delete_task() {
-    //     let r = parse_args(vec![
-    //         "opus".to_string(),
-    //         "add".to_string(),
-    //         "should be deleted #delete @today ,,,".to_string(),
-    //     ]);
-    //     let task = r.input.task.unwrap();
-    //     let db = open_db();
+    #[test]
+    fn finish_task() {
+        use crate::cli::cli_add_task;
+        use crate::{db::open_db, types::Task};
 
-    //     db.create_table_if_missing();
+        let task = Task::from(String::from("update excel sheet #work @today .5"));
+        let db = open_db();
 
-    //     cli_add_task(&db, task);
-    //     let id = db.con.last_insert_rowid().to_string();
-    //     db.delete_task(id.parse::<usize>().unwrap());
+        db.create_table_if_missing();
+        cli_add_task(&db, task.clone());
 
-    //     let tasks = cli_get_tasks(&db, "#delete".to_string()).len();
-    //     assert_eq!(tasks, 0);
-    // }
+        let id = db.con.last_insert_rowid();
 
-    // #[test]
-    // fn export_tasks() {
-    //     let db = open_db();
+        cli_fin_task(&db, id.clone().to_string());
 
-    //     db.create_table_if_missing();
-    //     let output = db.export(&crate::types::ExportType::Csv);
-    //     assert_eq!(output, "");
+        let tasks = cli_get_tasks(&db, id.to_string(), true);
+        let task1 = tasks.get(0).unwrap();
 
-    //     db.insert_task(Task {
-    //         id: Some(1_usize),
-    //         title: "title".to_owned(),
-    //         tag: "tag".to_owned(),
-    //         priority: 2_usize,
-    //         due: "due".to_owned(),
-    //         finished: false,
-    //     });
+        assert!(task1.finished);
 
-    //     let output = db.export(&crate::types::ExportType::Csv);
-    //     assert_eq!(output, "title,tag,2,due,false\n");
-    // }
+        db.con.close().expect("Closing Database failed.");
+    }
+
+    #[test]
+    fn clear_tasks() {
+        use crate::cli::cli_add_task;
+        use crate::{db::open_db, types::Task};
+
+        let task = Task::from(String::from("update excel sheet #work @today .5"));
+        let db = open_db();
+
+        db.create_table_if_missing();
+        cli_add_task(&db, task.clone());
+        cli_clear(&db);
+
+        let tasks = cli_get_tasks(&db, "list".to_string(), true);
+
+        assert_eq!(tasks.len(), 0);
+
+        db.con.close().expect("Closing Database failed.");
+    }
+
+    #[test]
+    fn delete_task() {
+        use crate::cli::cli_add_task;
+        use crate::{db::open_db, types::Task};
+
+        let task = Task::from(String::from("update excel sheet #delete @today .5"));
+        let db = open_db();
+
+        db.create_table_if_missing();
+        cli_add_task(&db, task.clone());
+
+        let id = db.con.last_insert_rowid();
+
+        cli_del_task(&db, id.to_string());
+
+        let tasks = cli_get_tasks(&db, "#delete".to_string(), true);
+
+        assert_eq!(tasks.len(), 0);
+
+        db.con.close().expect("Closing Database failed.");
+    }
+
+    #[test]
+    fn export_tasks() {
+        use crate::{db::open_db, types::Task};
+
+        let db = open_db();
+        db.create_table_if_missing();
+
+        let output = db.export(&crate::types::ExportType::Csv);
+        assert_eq!(output, "");
+
+        db.insert_task(Task {
+            id: Some(1_usize),
+            title: "title".to_owned(),
+            tag: "tag".to_owned(),
+            priority: 2_usize,
+            due: "due".to_owned(),
+            finished: false,
+        });
+
+        let output = db.export(&crate::types::ExportType::Csv);
+        assert_eq!(output, "title,tag,2,due,false\n");
+    }
 }
 
 #[cfg(test)]
