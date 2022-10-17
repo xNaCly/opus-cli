@@ -165,6 +165,7 @@ fn main() {
             write!(file, "{}", data).expect("Unable to write data to file");
         }
         _ => (),
+
     }
 
     db.con.close().expect("Error while closing database");

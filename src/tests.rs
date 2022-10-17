@@ -266,10 +266,7 @@ mod util {
         let path = get_db_path();
         assert!(create_dir_if_not_exist(&path));
         let ppath = Path::new(&path);
-        assert!(ppath
-            .parent()
-            .expect("Couldn't get directory of db file")
-            .exists());
+        assert!(ppath.parent().expect("Couldn't get directory of db file").exists());
     }
 }
 
