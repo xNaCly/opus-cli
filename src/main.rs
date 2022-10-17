@@ -1,12 +1,7 @@
 use clap::{arg, command, error::Error, Arg, ArgAction, Command};
-// use cli::*;
-// use db::{open_db, Database};
+use cli::cli_get_tasks;
+use db::{open_db, Database};
 use std::env;
-// use std::io::Write;
-// use types::{ArgumentType, Task};
-
-// use crate::cli::parse_args;
-// use crate::types::Cli;
 
 mod cli;
 mod db;
@@ -70,16 +65,30 @@ fn main() {
         )
         .get_matches();
 
+    let db: Database = open_db();
+    db.create_table_if_missing();
+
     match commands.subcommand() {
-        Some(("add", sub_matches)) => {
-            println!("{:?}", sub_matches.get_one::<String>("CONTENT"));
+        Some(("list", sub_matches)) => {
+            let display_finished = sub_matches.get_flag("finished");
+            let default_value = &String::from("list");
+            let query = sub_matches
+                .get_one::<String>("QUERY")
+                .unwrap_or(default_value);
+
+            let tasks = cli_get_tasks(&db, query.to_string(), display_finished);
+            for t in &tasks {
+                println!("{}", t);
+            }
+            println!(
+                "--\n{} tasks found matching query: '{}'",
+                tasks.len(),
+                query
+            );
         }
         _ => (),
     }
     // let result: Cli = parse_args(args);
-
-    // let db: Database = open_db();
-    // db.create_table_if_missing();
 
     // match &result.top_level_arg {
     //     ArgumentType::Add => {

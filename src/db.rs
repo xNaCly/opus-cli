@@ -49,7 +49,12 @@ impl Database {
     ///
     /// Caviats:
     /// - this method only returns open tasks (not finished)
-    pub fn get_tasks(&self, property: char, mut query: String) -> Vec<Task> {
+    pub fn get_tasks(
+        &self,
+        property: char,
+        mut query: String,
+        display_finished: bool,
+    ) -> Vec<Task> {
         let mut sql_query = match property {
             '#' => GET_TASK_BY_TAG,
             ',' => GET_TASK_BY_PRIO,
@@ -82,8 +87,7 @@ impl Database {
                 })
                 .expect("Failed to query all tasks")
                 .map(|x| x.expect("Couldn't map over tasks returned by database"))
-                // TODO: remove this if queried by id
-                .filter(|x| !x.finished)
+                .filter(|x| if display_finished { true } else { !x.finished })
                 .collect::<Vec<Task>>();
         }
 
@@ -103,8 +107,7 @@ impl Database {
         })
         .expect("Couldn't get task with the given query")
         .map(|x| x.expect("Couldn't map over tasks returned by database"))
-        // TODO: remove
-        .filter(|x| !x.finished)
+        .filter(|x| if display_finished { true } else { !x.finished })
         .collect::<Vec<Task>>()
     }
 
@@ -156,7 +159,7 @@ impl Database {
     }
 
     pub fn export(&self, export_type: &ExportType) -> String {
-        let tasks = self.get_tasks('l', "l".to_string());
+        let tasks = self.get_tasks('l', "l".to_string(), true);
 
         let tasks = match export_type {
             ExportType::Json => {
