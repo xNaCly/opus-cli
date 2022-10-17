@@ -1,6 +1,7 @@
 //! Opus types
 use std::fmt;
 
+use chrono::Utc;
 use serde::Serialize;
 /// User action
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -56,6 +57,49 @@ pub struct Task {
     pub priority: usize,
     pub due: String,
     pub finished: bool,
+}
+
+impl From<String> for Task {
+    /// This method is intended to parse tasks from cli input
+    /// - words prefixed with `#` are considered tags, only the last found task is kept as the tasks tag
+    /// - words prefixed with `@` are considered dates, '@tomorrow' and '@today' will be replaced with the corresponding dates in the 'yyyy-MM-dd' format
+    /// - a number prefixed with `.` is considered a priority
+    fn from(item: String) -> Self {
+        let mut t = Task {
+            title: "".to_string(),
+            id: None,
+            tag: "".to_string(),
+            priority: 0,
+            due: "".to_string(),
+            finished: false,
+        };
+        let tokens: Vec<&str> = item.split(' ').collect();
+        for (i, token) in tokens.iter().enumerate() {
+            match token.chars().next() {
+                Some('#') => t.tag = token.to_string(),
+                Some('@') => {
+                    t.due = match token {
+                        &"@tomorrow" => Utc::now().date().succ().format("%Y-%m-%d").to_string(),
+                        &"@today" => Utc::now().format("%Y-%m-%d").to_string(),
+                        _ => token[1..].to_string(),
+                    }
+                }
+                Some('.') => {
+                    t.priority = token[1..]
+                        .to_string()
+                        .parse::<usize>()
+                        .expect("Priority not a number")
+                }
+                _ => {
+                    if i != 0 {
+                        t.title.push(' ')
+                    }
+                    t.title.push_str(token);
+                }
+            }
+        }
+        t
+    }
 }
 
 impl fmt::Display for Task {

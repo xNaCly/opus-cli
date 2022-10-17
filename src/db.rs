@@ -57,7 +57,7 @@ impl Database {
     ) -> Vec<Task> {
         let mut sql_query = match property {
             '#' => GET_TASK_BY_TAG,
-            ',' => GET_TASK_BY_PRIO,
+            '.' => GET_TASK_BY_PRIO,
             '@' => {
                 unimplemented!("querying via date will be implemented in the future");
             }
@@ -92,7 +92,7 @@ impl Database {
         }
 
         if sql_query == GET_TASK_BY_PRIO {
-            query = query.len().to_string();
+            query = query[1..].to_string();
         }
 
         stmt.query_map([query], |row| {

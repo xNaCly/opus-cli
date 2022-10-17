@@ -58,11 +58,11 @@ opus list --finished
 # list all task with the tag #work
 opus list "#work"
 # list all tasks with the priority ,,,
-opus list ",,,"
+opus list .3
 # list the task with the id 1
 opus list 1
 # same as above
-opus l 1
+opus list 1
 ```
 
 ### Mark a task as finished
@@ -74,7 +74,7 @@ opus l 1
 # mark the task with id=1 as finished
 opus finish 1
 # same as above
-opus f 1
+opus finish 1
 ```
 
 ### Remove all tasks
@@ -104,7 +104,7 @@ opus export tsv data
 ```bash
 # delete the task with id=1
 opus delete 1
-opus d 1
+opus delete 1
 ```
 
 ## Configuration

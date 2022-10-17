@@ -11,13 +11,6 @@ pub fn cli_add_task(db: &Database, mut t: Task) {
         );
     }
 
-    if !t.due.is_empty() {
-        t.due = match &t.due[..] {
-            "@tomorrow" => Utc::now().date().succ().format("%Y-%m-%d").to_string(),
-            "@today" => Utc::now().format("%Y-%m-%d").to_string(),
-            _ => t.due,
-        }
-    }
     let task = Task {
         id: None,
         title: t.title,
