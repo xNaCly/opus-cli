@@ -88,6 +88,9 @@ fn main() {
         }
         _ => (),
     }
+
+    db.con.close().expect("Error while closing database");
+
     // let result: Cli = parse_args(args);
 
     // match &result.top_level_arg {
@@ -145,6 +148,4 @@ fn main() {
     //     }
     //     _ => panic!("Unknown argument."),
     // }
-
-    // db.con.close().expect("Error while closing database");
 }
