@@ -42,7 +42,7 @@ impl Database {
     ///
     /// property:
     ///  - `#`: task tag
-    ///  - `,`: task prio
+    ///  - `.`: task prio
     ///  - `@`: task due date
     ///
     /// Property is generally the first char of the query. Matching the property type is required to choose the correct database query.

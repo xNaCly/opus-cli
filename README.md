@@ -41,7 +41,7 @@ found in the `target` directory: `target/release/opus`
 # due: @tomorrow
 # tag: #github
 # priority: 3
-opus add "review and merge pr 5 @tomorrow #github ,,,"
+opus add "review and merge pr 5 @tomorrow #github .3"
 # add a new task with the given title
 opus a "review and merge pr 5"
 ```
@@ -57,7 +57,7 @@ opus list
 opus list --finished
 # list all task with the tag #work
 opus list "#work"
-# list all tasks with the priority ,,,
+# list all tasks with the priority 3
 opus list .3
 # list the task with the id 1
 opus list 1
