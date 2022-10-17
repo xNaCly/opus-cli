@@ -125,11 +125,10 @@ impl fmt::Display for Task {
             write!(f, " {}", tag)?;
         }
         if self.priority != 0 {
-            let mut prio: String = String::new();
-            for i in 0..self.priority {
-                prio.push(',');
-            }
-            write!(f, " [{}]", prio)?;
+            write!(f, " .{}", self.priority)?;
+        }
+        if self.finished {
+            write!(f, " FINISHED")?;
         }
         write!(f, "")
     }
