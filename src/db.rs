@@ -1,5 +1,5 @@
 //! # Opus database wrapper
-use rusqlite::Connection;
+use rusqlite::{Connection, Row};
 
 use crate::{
     types::{ExportType, Task},
@@ -73,29 +73,11 @@ impl Database {
             .prepare(sql_query)
             .expect("Failed to prepare SQL statement in querying for tasks");
 
-        if query == "list" || query == "l" {
-            return stmt
-                .query_map([], |row| {
-                    Ok(Task {
-                        id: row.get("id")?,
-                        title: row.get("title")?,
-                        tag: row.get("tag")?,
-                        due: row.get("due")?,
-                        priority: row.get("priority")?,
-                        finished: matches!(row.get("finished")?, 1),
-                    })
-                })
-                .expect("Failed to query all tasks")
-                .map(|x| x.expect("Couldn't map over tasks returned by database"))
-                .filter(|x| if display_finished { true } else { !x.finished })
-                .collect::<Vec<Task>>();
-        }
-
         if sql_query == GET_TASK_BY_PRIO {
             query = query[1..].to_string();
         }
 
-        stmt.query_map([query], |row| {
+        let parse_row = |row: &Row| {
             Ok(Task {
                 id: row.get("id")?,
                 title: row.get("title")?,
@@ -104,11 +86,19 @@ impl Database {
                 priority: row.get("priority")?,
                 finished: matches!(row.get("finished")?, 1),
             })
-        })
-        .expect("Couldn't get task with the given query")
-        .map(|x| x.expect("Couldn't map over tasks returned by database"))
-        .filter(|x| if display_finished { true } else { !x.finished })
-        .collect::<Vec<Task>>()
+        };
+
+        let result = if query == "list" || query == "l" {
+            stmt.query_map([], parse_row)
+        } else {
+            stmt.query_map([query], parse_row)
+        };
+
+        result
+            .expect("Couldn't get task with the given query")
+            .map(|x| x.expect("Couldn't map over tasks returned by database"))
+            .filter(|x: &Task| display_finished || !x.finished)
+            .collect::<Vec<Task>>()
     }
 
     pub fn create_table_if_missing(&self) {

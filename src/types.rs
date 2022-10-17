@@ -1,5 +1,5 @@
 //! Opus types
-use std::fmt;
+use std::fmt::{self};
 
 use chrono::Utc;
 use serde::Serialize;
@@ -22,6 +22,17 @@ impl fmt::Display for ExportType {
     }
 }
 
+impl From<&str> for ExportType {
+    fn from(s: &str) -> Self {
+        match s {
+            "csv" => ExportType::Csv,
+            "tsv" => ExportType::Tsv,
+            "json" => ExportType::Json,
+            _ => panic!("not a valid export type"),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, PartialEq, Eq, Clone)]
 pub struct Task {
     pub id: Option<usize>,
@@ -32,12 +43,12 @@ pub struct Task {
     pub finished: bool,
 }
 
-impl From<String> for Task {
+impl From<&str> for Task {
     /// This method is intended to parse tasks from cli input
     /// - words prefixed with `#` are considered tags, only the last found task is kept as the tasks tag
     /// - words prefixed with `@` are considered dates, '@tomorrow' and '@today' will be replaced with the corresponding dates in the 'yyyy-MM-dd' format
     /// - a number prefixed with `.` is considered a priority
-    fn from(item: String) -> Self {
+    fn from(item: &str) -> Self {
         let mut t = Task {
             title: "".to_string(),
             id: None,

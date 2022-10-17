@@ -1,4 +1,4 @@
-use clap::{arg, command, Arg, ArgAction, Command};
+use clap::{arg, command, crate_authors, crate_description, Arg, ArgAction, Command};
 use cli::{cli_add_task, cli_clear, cli_del_task, cli_export, cli_fin_task, cli_get_tasks};
 use db::{open_db, Database};
 use std::io::Write;
@@ -15,6 +15,8 @@ mod tests;
 fn main() {
     // INFO: documentation clap: https://docs.rs/clap/latest/clap/_tutorial/index.html#subcommands
     let commands = command!()
+        .about(crate_description!())
+        .author(crate_authors!("\n"))
         .propagate_version(true)
         .subcommand_required(true)
         .arg_required_else_help(true)
@@ -81,7 +83,6 @@ fn main() {
             let query = sub_matches
                 .get_one::<String>("QUERY")
                 .unwrap_or(default_value);
-
             let tasks = cli_get_tasks(&db, query.to_string(), display_finished);
             for t in &tasks {
                 println!("{}", t);
@@ -94,10 +95,9 @@ fn main() {
         }
         Some(("add", sub_matches)) => {
             let t: Task = Task::from(
-                sub_matches
-                    .get_one::<String>("CONTENT")
-                    .expect("Failure in parsing task")
-                    .to_string(),
+                *sub_matches
+                    .get_one::<&str>("CONTENT")
+                    .expect("Failure in parsing task"),
             );
 
             cli_add_task(&db, t);
@@ -150,12 +150,7 @@ fn main() {
                 .get_one::<String>("fileformat")
                 .expect("Bad Fileformat");
 
-            let export_type = match temp.as_str() {
-                "csv" => ExportType::Csv,
-                "json" => ExportType::Json,
-                "tsv" => ExportType::Tsv,
-                _ => panic!("Unknown exporttype"),
-            };
+            let export_type = ExportType::from(&temp[..]);
 
             let filename = sub_matches
                 .get_one::<String>("filename")
@@ -165,7 +160,6 @@ fn main() {
             write!(file, "{}", data).expect("Unable to write data to file");
         }
         _ => (),
-
     }
 
     db.con.close().expect("Error while closing database");

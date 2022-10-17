@@ -1,4 +1,18 @@
 #[cfg(test)]
+use crate::types::Task;
+#[cfg(test)]
+impl Task {
+    fn content_compare(&self, t: &Task) -> bool {
+        let titles = self.title == t.title;
+        let tag = self.tag == t.tag;
+        let prio = self.priority == t.priority;
+        let due = self.due == t.due;
+        let finished = self.finished == t.finished;
+        titles && tag && prio && due && finished
+    }
+}
+
+#[cfg(test)]
 mod cli {
     use crate::cli::{cli_clear, cli_del_task, cli_fin_task, cli_get_tasks};
 
@@ -7,7 +21,7 @@ mod cli {
         use crate::cli::cli_add_task;
         use crate::{db::open_db, types::Task};
 
-        let task = Task::from(String::from("update excel sheet #work @today .5"));
+        let task = Task::from("update excel sheet #work @today .5");
         let db = open_db();
 
         db.create_table_if_missing();
@@ -21,7 +35,7 @@ mod cli {
         use crate::cli::cli_add_task;
         use crate::{db::open_db, types::Task};
 
-        let task = Task::from(String::from("update excel sheet #work @today .5"));
+        let task = Task::from("update excel sheet #work @today .5");
         let db = open_db();
 
         db.create_table_if_missing();
@@ -32,11 +46,7 @@ mod cli {
         let tasks = cli_get_tasks(&db, last_id.to_string(), false);
         let task1 = tasks.get(0).unwrap();
 
-        assert_eq!(task.title, task1.title);
-        assert_eq!(task.tag, task1.tag);
-        assert_eq!(task.priority, task1.priority);
-        assert_eq!(task.due, task1.due);
-        assert_eq!(task.finished, task1.finished);
+        task.content_compare(task1);
 
         db.con.close().expect("Closing Database failed.");
     }
@@ -46,7 +56,7 @@ mod cli {
         use crate::cli::cli_add_task;
         use crate::{db::open_db, types::Task};
 
-        let task = Task::from(String::from("update excel sheet #test @today .5"));
+        let task = Task::from("update excel sheet #test @today .5");
         let db = open_db();
 
         db.create_table_if_missing();
@@ -55,11 +65,7 @@ mod cli {
         let tasks = cli_get_tasks(&db, "#test".to_string(), false);
         let task1 = tasks.get(0).unwrap();
 
-        assert_eq!(task.title, task1.title);
-        assert_eq!(task.tag, task1.tag);
-        assert_eq!(task.priority, task1.priority);
-        assert_eq!(task.due, task1.due);
-        assert_eq!(task.finished, task1.finished);
+        task.content_compare(task1);
 
         db.con.close().expect("Closing Database failed.");
     }
@@ -69,7 +75,7 @@ mod cli {
         use crate::cli::cli_add_task;
         use crate::{db::open_db, types::Task};
 
-        let task = Task::from(String::from("update excel sheet #work @today .18"));
+        let task = Task::from("update excel sheet #work @today .18");
         let db = open_db();
 
         db.create_table_if_missing();
@@ -78,11 +84,7 @@ mod cli {
         let tasks = cli_get_tasks(&db, ".18".to_string(), false);
         let task1 = tasks.get(0).unwrap();
 
-        assert_eq!(task.title, task1.title);
-        assert_eq!(task.tag, task1.tag);
-        assert_eq!(task.priority, task1.priority);
-        assert_eq!(task.due, task1.due);
-        assert_eq!(task.finished, task1.finished);
+        task.content_compare(task1);
 
         db.con.close().expect("Closing Database failed.");
     }
@@ -92,7 +94,7 @@ mod cli {
         use crate::cli::cli_add_task;
         use crate::{db::open_db, types::Task};
 
-        let task = Task::from(String::from("update excel sheet #work @today .5"));
+        let task = Task::from("update excel sheet #work @today .5");
         let db = open_db();
 
         db.create_table_if_missing();
@@ -100,12 +102,12 @@ mod cli {
 
         let id = db.con.last_insert_rowid();
 
-        cli_fin_task(&db, id.clone().to_string());
+        cli_fin_task(&db, id.to_string());
 
         let tasks = cli_get_tasks(&db, id.to_string(), true);
         let task1 = tasks.get(0).unwrap();
 
-        assert!(task1.finished);
+        task.content_compare(task1);
 
         db.con.close().expect("Closing Database failed.");
     }
@@ -115,7 +117,7 @@ mod cli {
         use crate::cli::cli_add_task;
         use crate::{db::open_db, types::Task};
 
-        let task = Task::from(String::from("update excel sheet #work @today .5"));
+        let task = Task::from("update excel sheet #work @today .5");
         let db = open_db();
 
         db.create_table_if_missing();
@@ -134,7 +136,7 @@ mod cli {
         use crate::cli::cli_add_task;
         use crate::{db::open_db, types::Task};
 
-        let task = Task::from(String::from("update excel sheet #delete @today .5"));
+        let task = Task::from("update excel sheet #delete @today .5");
         let db = open_db();
 
         db.create_table_if_missing();
@@ -191,7 +193,10 @@ mod util {
         let path = get_db_path();
         assert!(create_dir_if_not_exist(&path));
         let ppath = Path::new(&path);
-        assert!(ppath.parent().expect("Couldn't get directory of db file").exists());
+        assert!(ppath
+            .parent()
+            .expect("Couldn't get directory of db file")
+            .exists());
     }
 }
 
@@ -218,7 +223,7 @@ mod types {
     #[test]
     fn parse_task() {
         use crate::types::Task;
-        let task_string = String::from("i got stuff to do #work .5 @2022-10-17");
+        let task_string = "i got stuff to do #work .5 @2022-10-17";
         let t: Task = Task::from(task_string);
         assert!(!t.finished);
         assert_eq!(t.priority, 5);
