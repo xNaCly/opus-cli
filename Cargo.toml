@@ -1,6 +1,8 @@
 [package]
 name = "opus"
-version = "0.1.0-alpha"
+version = "0.2.0-alpha"
+author = "xnacly"
+about = "manage tasks with ease"
 edition = "2021"
 
 [dependencies]
@@ -8,3 +10,4 @@ chrono = "0.4.22"
 rusqlite = { version = "0.28.0", features = ["bundled"] }
 serde_json = "1.0"
 serde = { version = "1.0.145", features = ["derive"] }
+clap = { version = "4.0.15", features = ["derive", "cargo"] }
