@@ -90,11 +90,11 @@ opus clear
 
 ```bash
 # exports all tasks in the data.json file
-opus export json data
-# export all tasks in the mycsvfile.csv file
-opus export csv mycsvfile
-# data.tsv
-opus export tsv data
+opus export --format="json" --output="data.json"
+# export all tasks in the data.csv file
+opus export --format="csv" --output="data.csv"
+# export all tasks in the data.tsv file
+opus export --format="tsv" --output="data.csv"
 ```
 
 ### Delete a task

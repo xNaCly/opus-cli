@@ -1,9 +1,8 @@
 use crate::db::Database;
-use crate::types::{ArgumentType, Cli, CliInput, ExportType, Task};
-use chrono::Utc;
+use crate::types::{ExportType, Task};
 
 /// add the given Task to the database
-pub fn cli_add_task(db: &Database, mut t: Task) {
+pub fn cli_add_task(db: &Database, t: Task) {
     if t.title.is_empty() {
         panic!(
             "Task '{:?}' has no title, a task's title is the only required value!",

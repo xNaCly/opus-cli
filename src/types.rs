@@ -4,27 +4,6 @@ use std::fmt;
 use chrono::Utc;
 use serde::Serialize;
 /// User action
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ArgumentType {
-    /// add a new todo
-    Add,
-    /// delete a todo
-    Delete,
-    /// remove all tasks
-    Clear,
-    /// mark a todo as finished
-    Finish,
-    /// list todo matching the query
-    List,
-    /// given argument is unknown
-    Unknown,
-    /// not enough arguments supplied
-    Notenough,
-    Export {
-        export_type: ExportType,
-        file_name: String,
-    },
-}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ExportType {
@@ -41,12 +20,6 @@ impl fmt::Display for ExportType {
             ExportType::Tsv => write!(f, "tsv"),
         }
     }
-}
-
-#[derive(Debug)]
-pub struct CliInput {
-    pub task: Option<Task>,
-    pub query: Option<String>,
 }
 
 #[derive(Debug, Serialize, PartialEq, Eq, Clone)]
@@ -78,9 +51,9 @@ impl From<String> for Task {
             match token.chars().next() {
                 Some('#') => t.tag = token.to_string(),
                 Some('@') => {
-                    t.due = match token {
-                        &"@tomorrow" => Utc::now().date().succ().format("%Y-%m-%d").to_string(),
-                        &"@today" => Utc::now().format("%Y-%m-%d").to_string(),
+                    t.due = match *token {
+                        "@tomorrow" => Utc::now().date().succ().format("%Y-%m-%d").to_string(),
+                        "@today" => Utc::now().format("%Y-%m-%d").to_string(),
                         _ => token[1..].to_string(),
                     }
                 }
@@ -132,10 +105,4 @@ impl fmt::Display for Task {
         }
         write!(f, "")
     }
-}
-
-#[derive(Debug)]
-pub struct Cli {
-    pub top_level_arg: ArgumentType,
-    pub input: CliInput,
 }

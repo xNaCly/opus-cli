@@ -1,8 +1,9 @@
-use clap::{arg, command, error::Error, Arg, ArgAction, Command};
-use cli::{cli_add_task, cli_get_tasks};
+use clap::{arg, command, Arg, ArgAction, Command};
+use cli::{cli_add_task, cli_clear, cli_del_task, cli_export, cli_fin_task, cli_get_tasks};
 use db::{open_db, Database};
-use std::env;
-use types::Task;
+use std::io::Write;
+use std::{env, fs::File};
+use types::{ExportType, Task};
 
 mod cli;
 mod db;
@@ -101,64 +102,70 @@ fn main() {
 
             cli_add_task(&db, t);
         }
+        Some(("delete", sub_matches)) => {
+            let id = sub_matches
+                .get_one::<String>("ID")
+                .expect("Couldn't get id from input")
+                .to_string();
+
+            let feedback = cli_del_task(&db, id);
+            println!(
+                "{}",
+                if feedback {
+                    "deleted task"
+                } else {
+                    "failed to delete given task"
+                }
+            )
+        }
+        Some(("finish", sub_matches)) => {
+            let id = sub_matches
+                .get_one::<String>("ID")
+                .expect("Couldn't get id from input")
+                .to_string();
+
+            let feedback = cli_fin_task(&db, id);
+            println!(
+                "{}",
+                if feedback {
+                    "marked task as finished"
+                } else {
+                    "failed to mark task as finished"
+                }
+            )
+        }
+        Some(("clear", _)) => {
+            let feedback = cli_clear(&db);
+            println!(
+                "{}",
+                if feedback {
+                    "cleared database"
+                } else {
+                    "failed to clear database"
+                }
+            );
+        }
+        Some(("export", sub_matches)) => {
+            let temp = sub_matches
+                .get_one::<String>("fileformat")
+                .expect("Bad Fileformat");
+
+            let export_type = match temp.as_str() {
+                "csv" => ExportType::Csv,
+                "json" => ExportType::Json,
+                "tsv" => ExportType::Tsv,
+                _ => panic!("Unknown exporttype"),
+            };
+
+            let filename = sub_matches
+                .get_one::<String>("filename")
+                .expect("Bad Filename");
+            let data = cli_export(&db, &export_type);
+            let mut file = File::create(filename).expect("Unable to export to file");
+            write!(file, "{}", data).expect("Unable to write data to file");
+        }
         _ => (),
     }
 
     db.con.close().expect("Error while closing database");
-
-    // match &result.top_level_arg {
-    //     ArgumentType::Add => {
-    //         let t: Task = match result.input.task {
-    //             Some(x) => x,
-    //             _ => panic!("Input is malformed"),
-    //         };
-    //         cli_add_task(&db, t);
-    //     }
-    //     ArgumentType::List => {
-    //         let query = result.input.query.unwrap();
-    //         let tasks = cli_get_tasks(&db, query.clone());
-    //         for task in &tasks {
-    //             println!("{}", task);
-    //         }
-    //         println!("--");
-    //         println!(
-    //             "TODO: {} tasks found matching query: '{}'",
-    //             tasks.len(),
-    //             query
-    //         );
-    //     }
-    //     ArgumentType::Finish => {
-    //         if cli_fin_task(&db, result.input.query.unwrap()) {
-    //             println!("marked task as finished");
-    //         } else {
-    //             println!("marking task as finished failed");
-    //         }
-    //     }
-    //     ArgumentType::Clear => {
-    //         if cli_clear(&db) {
-    //             println!("removed all tasks from database");
-    //         } else {
-    //             println!("couldn't remove all tasks from the database");
-    //         }
-    //     }
-    //     ArgumentType::Export {
-    //         export_type,
-    //         file_name,
-    //     } => {
-    //         let data = cli_export(&db, export_type);
-
-    //         let file_name_with_extension = format!("{}.{}", file_name, export_type);
-    //         let mut file =
-    //             std::fs::File::create(file_name_with_extension).expect("Unable to open file");
-    //         write!(file, "{}", data).expect("Unable to write");
-    //     }
-    //     ArgumentType::Delete => {
-    //         if cli_del_task(&db, result.input.query.unwrap()) {
-    //             println!("deleted task");
-    //         } else {
-    //             println!("couldn't delete task");
-    //         }
-    //     }
-    //     _ => panic!("Unknown argument."),
-    // }
 }
