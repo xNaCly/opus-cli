@@ -1,7 +1,8 @@
 use clap::{arg, command, error::Error, Arg, ArgAction, Command};
-use cli::cli_get_tasks;
+use cli::{cli_add_task, cli_get_tasks};
 use db::{open_db, Database};
 use std::env;
+use types::Task;
 
 mod cli;
 mod db;
@@ -86,12 +87,20 @@ fn main() {
                 query
             );
         }
+        Some(("add", sub_matches)) => {
+            let t: Task = Task::from(
+                sub_matches
+                    .get_one::<String>("CONTENT")
+                    .expect("Failure in parsing task")
+                    .to_string(),
+            );
+
+            cli_add_task(&db, t);
+        }
         _ => (),
     }
 
     db.con.close().expect("Error while closing database");
-
-    // let result: Cli = parse_args(args);
 
     // match &result.top_level_arg {
     //     ArgumentType::Add => {

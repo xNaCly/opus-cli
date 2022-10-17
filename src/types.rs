@@ -98,6 +98,9 @@ impl From<String> for Task {
                 }
             }
         }
+        if t.title.is_empty() {
+            panic!("Title of the task is missing")
+        }
         t
     }
 }
