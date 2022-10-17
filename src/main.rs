@@ -19,23 +19,27 @@ fn main() {
         .arg_required_else_help(true)
         .subcommand(
             Command::new("add")
-                .about("create a new todo")
+                .visible_alias("a")
+                .about("create a new task")
                 .arg(arg!(<CONTENT>)),
         )
         .subcommand(
             Command::new("delete")
-                .about("delete the todo with the given id")
+                .visible_aliases(["del", "d"])
+                .about("delete a task with the given id")
                 .arg(arg!(<ID>)),
         )
         .subcommand(Command::new("clear").about("remove all tasks from the database"))
         .subcommand(
             Command::new("finish")
-                .about("mark the todo with the given id as finished")
+                .visible_aliases(["fin", "f"])
+                .about("mark the task with the given id as finished")
                 .arg(arg!(<ID>)),
         )
         .subcommand(
             Command::new("list")
-                .about("list todos matching the given query")
+                .visible_aliases(["ls", "l"])
+                .about("list tasks matching the given query")
                 .arg(arg!([QUERY]))
                 .arg(
                     // INFO: documentation for flags: https://docs.rs/clap/latest/clap/_tutorial/index.html#flags

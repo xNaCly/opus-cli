@@ -61,8 +61,8 @@ opus list "#work"
 opus list .3
 # list the task with the id 1
 opus list 1
-# same as above
-opus list 1
+opus ls 1
+opus l 1
 ```
 
 ### Mark a task as finished
@@ -73,8 +73,8 @@ opus list 1
 ```bash
 # mark the task with id=1 as finished
 opus finish 1
-# same as above
-opus finish 1
+opus fin 1
+opus f 1
 ```
 
 ### Remove all tasks
@@ -104,7 +104,8 @@ opus export tsv data
 ```bash
 # delete the task with id=1
 opus delete 1
-opus delete 1
+opus del 1
+opus d 1
 ```
 
 ## Configuration
