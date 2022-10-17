@@ -48,11 +48,13 @@ opus a "review and merge pr 5"
 
 ### List tasks
 
--   opus hides finished tasks from the `opus ls` command
+-   this command hides finished tasks from the `opus ls` command
 
 ```bash
 # list all tasks
 opus list
+# list all task + finished tasks
+opus list --finished
 # list all task with the tag #work
 opus list "#work"
 # list all tasks with the priority ,,,
@@ -108,23 +110,23 @@ opus d 1
 ## Configuration
 
 ### The `OPUS_PATH` env variable
-By default `opus` decides where to store its database based on your operating system.
-Currently opus supports automatically figuring out where to store the database on windows, linux and macos.
 
-- Linux and Macos: `$HOME/opus/opus.db` or `$XDG_CONFIG_HOME/opus/opus.db`
-- Windows: `%LOCALAPPDATA%/opus/opus.db`
+By default `opus` decides where to store its database based on your operating system. Currently opus supports
+automatically figuring out where to store the database on windows, linux and macos.
 
-For use cases which force the use of a different location, opus honors the `OPUS_PATH` environment variable.
-Set this variable and override the above paths.:
+-   Linux and Macos: `$HOME/opus/opus.db` or `$XDG_CONFIG_HOME/opus/opus.db`
+-   Windows: `%LOCALAPPDATA%/opus/opus.db`
 
-- Linux:
-*add to .bashrc (or your shells config file)*
+For use cases which force the use of a different location, opus honors the `OPUS_PATH` environment variable. Set this
+variable and override the above paths.:
+
+-   Linux: _add to .bashrc (or your shells config file)_
+
 ```
 set OPUS_PATH=~/.config # opus will create and use ~/.config/opus/opus.db
 ```
 
-- Windows:
-Add to your system environment variables *[guide](https://geekflare.com/system-environment-variables-in-windows/)*.
+-   Windows: Add to your system environment variables
+    _[guide](https://geekflare.com/system-environment-variables-in-windows/)_.
 
 > Opus will create the `opus/opus.db` file and directory in the directory specified in the `OPUS_PATH` variable
-
