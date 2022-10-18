@@ -46,7 +46,7 @@ mod cli {
         let tasks = cli_get_tasks(&db, last_id.to_string(), false);
         let task1 = tasks.get(0).unwrap();
 
-        task.content_compare(task1);
+        assert!(task.content_compare(task1));
 
         db.con.close().expect("Closing Database failed.");
     }
@@ -65,7 +65,7 @@ mod cli {
         let tasks = cli_get_tasks(&db, "#test".to_string(), false);
         let task1 = tasks.get(0).unwrap();
 
-        task.content_compare(task1);
+        assert!(task.content_compare(task1));
 
         db.con.close().expect("Closing Database failed.");
     }
@@ -84,7 +84,7 @@ mod cli {
         let tasks = cli_get_tasks(&db, ".18".to_string(), false);
         let task1 = tasks.get(0).unwrap();
 
-        task.content_compare(task1);
+        assert!(task.content_compare(task1));
 
         db.con.close().expect("Closing Database failed.");
     }
@@ -107,7 +107,7 @@ mod cli {
         let tasks = cli_get_tasks(&db, id.to_string(), true);
         let task1 = tasks.get(0).unwrap();
 
-        task.content_compare(task1);
+        assert!(task.content_compare(task1));
 
         db.con.close().expect("Closing Database failed.");
     }
