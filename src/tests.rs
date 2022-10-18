@@ -1,279 +1,165 @@
 #[cfg(test)]
+use crate::types::Task;
+#[cfg(test)]
+impl Task {
+    fn content_compare(&self, t: &Task) -> bool {
+        let titles = self.title == t.title;
+        let tag = self.tag == t.tag;
+        let prio = self.priority == t.priority;
+        let due = self.due == t.due;
+        let finished = self.finished == t.finished;
+        titles && tag && prio && due && finished
+    }
+}
+
+#[cfg(test)]
 mod cli {
-    use std::vec;
-
-    use crate::{
-        cli::{cli_add_task, cli_fin_task, cli_get_tasks, parse_args},
-        db::open_db,
-        types::{ArgumentType, Task},
-    };
-    #[test]
-    fn parse_arguments_add() {
-        let r = parse_args(vec![
-            "opus".to_string(),
-            "add".to_string(),
-            "update excel sheet #work @today ,,,".to_string(),
-        ]);
-        let task = r.input.task.unwrap();
-        assert_eq!(task.title, "update excel sheet");
-        assert_eq!(task.tag, "#work");
-        assert_eq!(task.due, "@today");
-        assert_eq!(task.priority, 3);
-        assert!(!task.finished);
-    }
-
-    #[test]
-    fn parse_arguments_args_type() {
-        let args = ["add", "delete", "clear", "finish", "list", "export"];
-        let args1 = ["a", "d", "clear", "f", "l", "export"];
-        let args_types = [
-            ArgumentType::Add,
-            ArgumentType::Delete,
-            ArgumentType::Clear,
-            ArgumentType::Finish,
-            ArgumentType::List,
-        ];
-        for (arg, arg_type) in args.iter().zip(args_types.clone()) {
-            let r = parse_args(vec![
-                "opus".to_string(),
-                arg.to_string(),
-                "arg2".to_string(),
-            ]);
-            assert_eq!(r.top_level_arg, arg_type);
-        }
-        for (arg1, arg_type) in args.iter().zip(args_types) {
-            let r = parse_args(vec![
-                "opus".to_string(),
-                arg1.to_string(),
-                "arg2".to_string(),
-            ]);
-            assert_eq!(r.top_level_arg, arg_type);
-        }
-    }
-
-    #[test]
-    fn parse_export() {
-        let inputs = [
-            vec![
-                "opus".to_owned(),
-                "export".to_owned(),
-                "csv".to_owned(),
-                "tmp1".to_owned(),
-            ],
-            vec![
-                "opus".to_owned(),
-                "export".to_owned(),
-                "tsv".to_owned(),
-                "tmp2".to_owned(),
-            ],
-            vec![
-                "opus".to_owned(),
-                "export".to_owned(),
-                "json".to_owned(),
-                "tmp3".to_owned(),
-            ],
-        ];
-
-        let expected = [
-            ArgumentType::Export {
-                export_type: crate::types::ExportType::Csv,
-                file_name: "tmp1".to_owned(),
-            },
-            ArgumentType::Export {
-                export_type: crate::types::ExportType::Tsv,
-                file_name: "tmp2".to_owned(),
-            },
-            ArgumentType::Export {
-                export_type: crate::types::ExportType::Json,
-                file_name: "tmp3".to_owned(),
-            },
-        ];
-
-        for (input, expected) in inputs.iter().zip(expected) {
-            assert_eq!(parse_args(input.to_owned()).top_level_arg, expected)
-        }
-    }
-
-    #[test]
-    #[should_panic]
-    fn not_enough_arguments_ii() {
-        parse_args(vec!["opus".to_string(), "add".to_string()]);
-    }
-
-    #[test]
-    #[should_panic]
-    fn not_enough_arguments_export_1() {
-        parse_args(vec!["opus".to_string(), "export".to_string()]);
-    }
-
-    #[test]
-    #[should_panic]
-    fn not_enough_arguments_export_2() {
-        parse_args(vec![
-            "opus".to_string(),
-            "export".to_string(),
-            "csv".to_owned(),
-        ]);
-    }
-
-    #[test]
-    #[should_panic]
-    fn not_enough_arguments_export_3() {
-        parse_args(vec![
-            "opus".to_string(),
-            "export".to_string(),
-            "file".to_owned(),
-        ]);
-    }
+    use crate::cli::{cli_clear, cli_del_task, cli_fin_task, cli_get_tasks};
 
     #[test]
     fn insert_task() {
-        let r = parse_args(vec![
-            "opus".to_string(),
-            "add".to_string(),
-            "update excel sheet #work @today ,,,".to_string(),
-        ]);
-        let task = r.input.task.unwrap();
+        use crate::cli::cli_add_task;
+        use crate::{db::open_db, types::Task};
+
+        let task = Task::from("update excel sheet #work @today .5");
         let db = open_db();
+
         db.create_table_if_missing();
         cli_add_task(&db, task);
+
         db.con.close().expect("Closing Database failed.");
     }
 
     #[test]
     fn get_task_by_id() {
-        let r = parse_args(vec![
-            "opus".to_string(),
-            "add".to_string(),
-            "update excel sheet #work @today ,,,".to_string(),
-        ]);
-        let task = r.input.task.unwrap();
+        use crate::cli::cli_add_task;
+        use crate::{db::open_db, types::Task};
+
+        let task = Task::from("update excel sheet #work @today .5");
         let db = open_db();
+
         db.create_table_if_missing();
+        cli_add_task(&db, task.clone());
 
-        cli_add_task(&db, task);
-        let tasks = cli_get_tasks(&db, db.con.last_insert_rowid().to_string());
-        let task = tasks.get(0).unwrap();
+        let last_id = db.con.last_insert_rowid();
 
-        assert_eq!(task.title, "update excel sheet");
-        assert_eq!(task.tag, "#work");
-        assert_eq!(task.priority, 3);
+        let tasks = cli_get_tasks(&db, last_id.to_string(), false);
+        let task1 = tasks.get(0).unwrap();
+
+        task.content_compare(task1);
 
         db.con.close().expect("Closing Database failed.");
     }
 
     #[test]
     fn get_task_by_tag() {
-        let r = parse_args(vec![
-            "opus".to_string(),
-            "add".to_string(),
-            "update excel sheet #work @today ,,,".to_string(),
-        ]);
-        let task = r.input.task.unwrap();
+        use crate::cli::cli_add_task;
+        use crate::{db::open_db, types::Task};
 
+        let task = Task::from("update excel sheet #test @today .5");
         let db = open_db();
+
         db.create_table_if_missing();
+        cli_add_task(&db, task.clone());
 
-        cli_add_task(&db, task);
-        let tasks = cli_get_tasks(&db, "#work".to_string());
-        let task = tasks.get(0).unwrap();
+        let tasks = cli_get_tasks(&db, "#test".to_string(), false);
+        let task1 = tasks.get(0).unwrap();
 
-        assert_eq!(task.title, "update excel sheet");
-        assert_eq!(task.tag, "#work");
-        assert_eq!(task.priority, 3);
+        task.content_compare(task1);
 
         db.con.close().expect("Closing Database failed.");
     }
 
     #[test]
     fn get_task_by_prio() {
-        let r = parse_args(vec![
-            "opus".to_string(),
-            "add".to_string(),
-            "update excel sheet #work @today ,,,".to_string(),
-        ]);
-        let task = r.input.task.unwrap();
+        use crate::cli::cli_add_task;
+        use crate::{db::open_db, types::Task};
 
+        let task = Task::from("update excel sheet #work @today .18");
         let db = open_db();
+
         db.create_table_if_missing();
+        cli_add_task(&db, task.clone());
 
-        cli_add_task(&db, task);
-        let tasks = cli_get_tasks(&db, ",,,".to_string());
-        let task = tasks.get(0).unwrap();
+        let tasks = cli_get_tasks(&db, ".18".to_string(), false);
+        let task1 = tasks.get(0).unwrap();
 
-        assert_eq!(task.title, "update excel sheet");
-        assert_eq!(task.tag, "#work");
-        assert_eq!(task.priority, 3);
+        task.content_compare(task1);
 
         db.con.close().expect("Closing Database failed.");
     }
 
     #[test]
     fn finish_task() {
-        let r = parse_args(vec![
-            "opus".to_string(),
-            "add".to_string(),
-            "update excel sheet #work @today ,,,".to_string(),
-        ]);
-        let task = r.input.task.unwrap();
+        use crate::cli::cli_add_task;
+        use crate::{db::open_db, types::Task};
+
+        let task = Task::from("update excel sheet #work @today .5");
         let db = open_db();
 
         db.create_table_if_missing();
+        cli_add_task(&db, task.clone());
 
-        cli_add_task(&db, task);
-        let id = db.con.last_insert_rowid().to_string();
+        let id = db.con.last_insert_rowid();
 
-        cli_fin_task(&db, id.clone());
+        cli_fin_task(&db, id.to_string());
 
-        let tasks = db.get_tasks('0', id);
-        assert_eq!(tasks.len(), 0);
+        let tasks = cli_get_tasks(&db, id.to_string(), true);
+        let task1 = tasks.get(0).unwrap();
+
+        task.content_compare(task1);
 
         db.con.close().expect("Closing Database failed.");
     }
 
     #[test]
     fn clear_tasks() {
-        let r = parse_args(vec![
-            "opus".to_string(),
-            "add".to_string(),
-            "update excel sheet #work @today ,,,".to_string(),
-        ]);
-        let task = r.input.task.unwrap();
+        use crate::cli::cli_add_task;
+        use crate::{db::open_db, types::Task};
+
+        let task = Task::from("update excel sheet #work @today .5");
         let db = open_db();
 
         db.create_table_if_missing();
-        db.insert_task(task);
-        db.clear_all_tasks();
+        cli_add_task(&db, task.clone());
+        cli_clear(&db);
 
-        let tasks = db.get_tasks('l', "l".to_string()).len();
-        assert_eq!(tasks, 0);
+        let tasks = cli_get_tasks(&db, "list".to_string(), true);
+
+        assert_eq!(tasks.len(), 0);
+
+        db.con.close().expect("Closing Database failed.");
     }
 
     #[test]
     fn delete_task() {
-        let r = parse_args(vec![
-            "opus".to_string(),
-            "add".to_string(),
-            "should be deleted #delete @today ,,,".to_string(),
-        ]);
-        let task = r.input.task.unwrap();
+        use crate::cli::cli_add_task;
+        use crate::{db::open_db, types::Task};
+
+        let task = Task::from("update excel sheet #delete @today .5");
         let db = open_db();
 
         db.create_table_if_missing();
+        cli_add_task(&db, task.clone());
 
-        cli_add_task(&db, task);
-        let id = db.con.last_insert_rowid().to_string();
-        db.delete_task(id.parse::<usize>().unwrap());
+        let id = db.con.last_insert_rowid();
 
-        let tasks = cli_get_tasks(&db, "#delete".to_string()).len();
-        assert_eq!(tasks, 0);
+        cli_del_task(&db, id.to_string());
+
+        let tasks = cli_get_tasks(&db, "#delete".to_string(), true);
+
+        assert_eq!(tasks.len(), 0);
+
+        db.con.close().expect("Closing Database failed.");
     }
 
     #[test]
     fn export_tasks() {
-        let db = open_db();
+        use crate::{db::open_db, types::Task};
 
+        let db = open_db();
         db.create_table_if_missing();
+
         let output = db.export(&crate::types::ExportType::Csv);
         assert_eq!(output, "");
 
@@ -307,7 +193,10 @@ mod util {
         let path = get_db_path();
         assert!(create_dir_if_not_exist(&path));
         let ppath = Path::new(&path);
-        assert!(ppath.parent().expect("Couldn't get directory of db file").exists());
+        assert!(ppath
+            .parent()
+            .expect("Couldn't get directory of db file")
+            .exists());
     }
 }
 
@@ -326,5 +215,20 @@ mod db {
         let db = open_db();
         db.create_table_if_missing();
         db.con.close().expect("Closing Database failed.");
+    }
+}
+
+mod types {
+
+    #[test]
+    fn parse_task() {
+        use crate::types::Task;
+        let task_string = "i got stuff to do #work .5 @2022-10-17";
+        let t: Task = Task::from(task_string);
+        assert!(!t.finished);
+        assert_eq!(t.priority, 5);
+        assert_eq!(t.due, String::from("2022-10-17"));
+        assert_eq!(t.title, String::from("i got stuff to do"));
+        assert_eq!(t.tag, String::from("#work"));
     }
 }

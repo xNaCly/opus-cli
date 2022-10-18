@@ -1,29 +1,9 @@
 //! Opus types
-use std::fmt;
+use std::fmt::{self};
 
+use chrono::Utc;
 use serde::Serialize;
 /// User action
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ArgumentType {
-    /// add a new todo
-    Add,
-    /// delete a todo
-    Delete,
-    /// remove all tasks
-    Clear,
-    /// mark a todo as finished
-    Finish,
-    /// list todo matching the query
-    List,
-    /// given argument is unknown
-    Unknown,
-    /// not enough arguments supplied
-    Notenough,
-    Export {
-        export_type: ExportType,
-        file_name: String,
-    },
-}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ExportType {
@@ -42,13 +22,18 @@ impl fmt::Display for ExportType {
     }
 }
 
-#[derive(Debug)]
-pub struct CliInput {
-    pub task: Option<Task>,
-    pub query: Option<String>,
+impl From<&str> for ExportType {
+    fn from(s: &str) -> Self {
+        match s {
+            "csv" => ExportType::Csv,
+            "tsv" => ExportType::Tsv,
+            "json" => ExportType::Json,
+            _ => panic!("not a valid export type"),
+        }
+    }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, PartialEq, Eq, Clone)]
 pub struct Task {
     pub id: Option<usize>,
     pub title: String,
@@ -56,6 +41,52 @@ pub struct Task {
     pub priority: usize,
     pub due: String,
     pub finished: bool,
+}
+
+impl From<&str> for Task {
+    /// This method is intended to parse tasks from cli input
+    /// - words prefixed with `#` are considered tags, only the last found task is kept as the tasks tag
+    /// - words prefixed with `@` are considered dates, '@tomorrow' and '@today' will be replaced with the corresponding dates in the 'yyyy-MM-dd' format
+    /// - a number prefixed with `.` is considered a priority
+    fn from(item: &str) -> Self {
+        let mut t = Task {
+            title: "".to_string(),
+            id: None,
+            tag: "".to_string(),
+            priority: 0,
+            due: "".to_string(),
+            finished: false,
+        };
+        let tokens: Vec<&str> = item.split(' ').collect();
+        for (i, token) in tokens.iter().enumerate() {
+            match token.chars().next() {
+                Some('#') => t.tag = token.to_string(),
+                Some('@') => {
+                    t.due = match *token {
+                        "@tomorrow" => Utc::now().date().succ().format("%Y-%m-%d").to_string(),
+                        "@today" => Utc::now().format("%Y-%m-%d").to_string(),
+                        _ => token[1..].to_string(),
+                    }
+                }
+                Some('.') => {
+                    t.priority = token[1..]
+                        .to_string()
+                        .parse::<usize>()
+                        .expect("Priority not a number")
+                }
+                _ => {
+                    if i != 0 {
+                        t.title.push(' ')
+                    }
+                    t.title.push_str(token);
+                }
+            }
+        }
+        if t.title.is_empty() {
+            panic!("Title of the task is missing")
+        }
+        t
+    }
 }
 
 impl fmt::Display for Task {
@@ -78,18 +109,11 @@ impl fmt::Display for Task {
             write!(f, " {}", tag)?;
         }
         if self.priority != 0 {
-            let mut prio: String = String::new();
-            for i in 0..self.priority {
-                prio.push(',');
-            }
-            write!(f, " [{}]", prio)?;
+            write!(f, " .{}", self.priority)?;
+        }
+        if self.finished {
+            write!(f, " FINISHED")?;
         }
         write!(f, "")
     }
-}
-
-#[derive(Debug)]
-pub struct Cli {
-    pub top_level_arg: ArgumentType,
-    pub input: CliInput,
 }

@@ -1,5 +1,5 @@
 //! # Opus database wrapper
-use rusqlite::Connection;
+use rusqlite::{Connection, Row};
 
 use crate::{
     types::{ExportType, Task},
@@ -42,17 +42,22 @@ impl Database {
     ///
     /// property:
     ///  - `#`: task tag
-    ///  - `,`: task prio
+    ///  - `.`: task prio
     ///  - `@`: task due date
     ///
     /// Property is generally the first char of the query. Matching the property type is required to choose the correct database query.
     ///
     /// Caviats:
     /// - this method only returns open tasks (not finished)
-    pub fn get_tasks(&self, property: char, mut query: String) -> Vec<Task> {
+    pub fn get_tasks(
+        &self,
+        property: char,
+        mut query: String,
+        display_finished: bool,
+    ) -> Vec<Task> {
         let mut sql_query = match property {
             '#' => GET_TASK_BY_TAG,
-            ',' => GET_TASK_BY_PRIO,
+            '.' => GET_TASK_BY_PRIO,
             '@' => {
                 unimplemented!("querying via date will be implemented in the future");
             }
@@ -68,30 +73,11 @@ impl Database {
             .prepare(sql_query)
             .expect("Failed to prepare SQL statement in querying for tasks");
 
-        if query == "list" || query == "l" {
-            return stmt
-                .query_map([], |row| {
-                    Ok(Task {
-                        id: row.get("id")?,
-                        title: row.get("title")?,
-                        tag: row.get("tag")?,
-                        due: row.get("due")?,
-                        priority: row.get("priority")?,
-                        finished: matches!(row.get("finished")?, 1),
-                    })
-                })
-                .expect("Failed to query all tasks")
-                .map(|x| x.expect("Couldn't map over tasks returned by database"))
-                // TODO: remove this if queried by id
-                .filter(|x| !x.finished)
-                .collect::<Vec<Task>>();
-        }
-
         if sql_query == GET_TASK_BY_PRIO {
-            query = query.len().to_string();
+            query = query[1..].to_string();
         }
 
-        stmt.query_map([query], |row| {
+        let parse_row = |row: &Row| {
             Ok(Task {
                 id: row.get("id")?,
                 title: row.get("title")?,
@@ -100,12 +86,19 @@ impl Database {
                 priority: row.get("priority")?,
                 finished: matches!(row.get("finished")?, 1),
             })
-        })
-        .expect("Couldn't get task with the given query")
-        .map(|x| x.expect("Couldn't map over tasks returned by database"))
-        // TODO: remove
-        .filter(|x| !x.finished)
-        .collect::<Vec<Task>>()
+        };
+
+        let result = if query == "list" || query == "l" {
+            stmt.query_map([], parse_row)
+        } else {
+            stmt.query_map([query], parse_row)
+        };
+
+        result
+            .expect("Couldn't get task with the given query")
+            .map(|x| x.expect("Couldn't map over tasks returned by database"))
+            .filter(|x: &Task| display_finished || !x.finished)
+            .collect::<Vec<Task>>()
     }
 
     pub fn create_table_if_missing(&self) {
@@ -156,7 +149,7 @@ impl Database {
     }
 
     pub fn export(&self, export_type: &ExportType) -> String {
-        let tasks = self.get_tasks('l', "l".to_string());
+        let tasks = self.get_tasks('l', "l".to_string(), true);
 
         let tasks = match export_type {
             ExportType::Json => {

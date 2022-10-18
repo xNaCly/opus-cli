@@ -41,25 +41,27 @@ found in the `target` directory: `target/release/opus`
 # due: @tomorrow
 # tag: #github
 # priority: 3
-opus add "review and merge pr 5 @tomorrow #github ,,,"
+opus add "review and merge pr 5 @tomorrow #github .3"
 # add a new task with the given title
 opus a "review and merge pr 5"
 ```
 
 ### List tasks
 
--   opus hides finished tasks from the `opus ls` command
+-   this command hides finished tasks from the `opus ls` command
 
 ```bash
 # list all tasks
 opus list
+# list all task + finished tasks
+opus list --finished
 # list all task with the tag #work
 opus list "#work"
-# list all tasks with the priority ,,,
-opus list ",,,"
+# list all tasks with the priority 3
+opus list .3
 # list the task with the id 1
 opus list 1
-# same as above
+opus ls 1
 opus l 1
 ```
 
@@ -71,7 +73,7 @@ opus l 1
 ```bash
 # mark the task with id=1 as finished
 opus finish 1
-# same as above
+opus fin 1
 opus f 1
 ```
 
@@ -88,11 +90,11 @@ opus clear
 
 ```bash
 # exports all tasks in the data.json file
-opus export json data
-# export all tasks in the mycsvfile.csv file
-opus export csv mycsvfile
-# data.tsv
-opus export tsv data
+opus export --format="json" --output="data.json"
+# export all tasks in the data.csv file
+opus export --format="csv" --output="data.csv"
+# export all tasks in the data.tsv file
+opus export --format="tsv" --output="data.csv"
 ```
 
 ### Delete a task
@@ -102,29 +104,30 @@ opus export tsv data
 ```bash
 # delete the task with id=1
 opus delete 1
+opus del 1
 opus d 1
 ```
 
 ## Configuration
 
 ### The `OPUS_PATH` env variable
-By default `opus` decides where to store its database based on your operating system.
-Currently opus supports automatically figuring out where to store the database on windows, linux and macos.
 
-- Linux and Macos: `$HOME/opus/opus.db` or `$XDG_CONFIG_HOME/opus/opus.db`
-- Windows: `%LOCALAPPDATA%/opus/opus.db`
+By default `opus` decides where to store its database based on your operating system. Currently opus supports
+automatically figuring out where to store the database on windows, linux and macos.
 
-For use cases which force the use of a different location, opus honors the `OPUS_PATH` environment variable.
-Set this variable and override the above paths.:
+-   Linux and Macos: `$HOME/opus/opus.db` or `$XDG_CONFIG_HOME/opus/opus.db`
+-   Windows: `%LOCALAPPDATA%/opus/opus.db`
 
-- Linux:
-*add to .bashrc (or your shells config file)*
+For use cases which force the use of a different location, opus honors the `OPUS_PATH` environment variable. Set this
+variable and override the above paths.:
+
+-   Linux: _add to .bashrc (or your shells config file)_
+
 ```
 set OPUS_PATH=~/.config # opus will create and use ~/.config/opus/opus.db
 ```
 
-- Windows:
-Add to your system environment variables *[guide](https://geekflare.com/system-environment-variables-in-windows/)*.
+-   Windows: Add to your system environment variables
+    _[guide](https://geekflare.com/system-environment-variables-in-windows/)_.
 
 > Opus will create the `opus/opus.db` file and directory in the directory specified in the `OPUS_PATH` variable
-
