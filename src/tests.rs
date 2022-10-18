@@ -94,7 +94,7 @@ mod cli {
         use crate::cli::cli_add_task;
         use crate::{db::open_db, types::Task};
 
-        let task = Task::from("update excel sheet #work @today .5");
+        let mut task = Task::from("update excel sheet #work @today .5");
         let db = open_db();
 
         db.create_table_if_missing();
@@ -107,6 +107,7 @@ mod cli {
         let tasks = cli_get_tasks(&db, id.to_string(), true);
         let task1 = tasks.get(0).unwrap();
 
+        task.finished = true;
         assert!(task.content_compare(task1));
 
         db.con.close().expect("Closing Database failed.");
