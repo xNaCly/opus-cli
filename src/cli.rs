@@ -1,5 +1,5 @@
 use crate::db::Database;
-use crate::types::{ExportType, SortDirection, SortMode, Task};
+use crate::types::{ExportType, SortMode, SortOrder, Task};
 
 /// add the given Task to the database
 pub fn cli_add_task(db: &Database, t: Task) {
@@ -35,14 +35,14 @@ pub fn cli_get_tasks(
     q: String,
     display_finished: bool,
     sort_by: SortMode,
-    sort_direction: SortDirection,
+    sort_order: SortOrder,
 ) -> Vec<Task> {
     db.get_tasks(
         q.chars().next().expect("Failure in getting task query"),
         q,
         display_finished,
         sort_by,
-        sort_direction,
+        sort_order,
     )
 }
 

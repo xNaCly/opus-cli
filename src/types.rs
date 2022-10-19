@@ -12,6 +12,7 @@ pub enum ExportType {
     Tsv,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SortMode {
     Id,
     Due,
@@ -20,6 +21,24 @@ pub enum SortMode {
     Priority,
     Tag,
     NoSort,
+}
+
+impl fmt::Display for SortMode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Id => "id",
+                Self::Due => "due",
+                Self::Finished => "finished",
+                Self::Title => "title",
+                Self::Priority => "priority",
+                Self::Tag => "tag",
+                Self::NoSort => "",
+            }
+        )
+    }
 }
 
 impl From<&str> for SortMode {
@@ -36,16 +55,30 @@ impl From<&str> for SortMode {
     }
 }
 
-pub enum SortDirection {
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SortOrder {
     DESC,
     ASC,
 }
 
-impl From<&str> for SortDirection {
+impl fmt::Display for SortOrder {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::DESC => "DESC",
+                _ => "ASC",
+            }
+        )
+    }
+}
+
+impl From<&str> for SortOrder {
     fn from(s: &str) -> Self {
         match s {
-            "desc" => SortDirection::DESC,
-            "asc" => SortDirection::ASC,
+            "desc" => SortOrder::DESC,
+            "asc" => SortOrder::ASC,
             _ => panic!("invalid sort direction"),
         }
     }

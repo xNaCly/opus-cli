@@ -14,7 +14,10 @@ impl Task {
 
 #[cfg(test)]
 mod cli {
-    use crate::cli::{cli_clear, cli_del_task, cli_fin_task, cli_get_tasks};
+    use crate::{
+        cli::{cli_clear, cli_del_task, cli_fin_task, cli_get_tasks},
+        types::{SortMode, SortOrder},
+    };
 
     #[test]
     fn insert_task() {
@@ -43,7 +46,13 @@ mod cli {
 
         let last_id = db.con.last_insert_rowid();
 
-        let tasks = cli_get_tasks(&db, last_id.to_string(), false);
+        let tasks = cli_get_tasks(
+            &db,
+            last_id.to_string(),
+            false,
+            SortMode::NoSort,
+            SortOrder::ASC,
+        );
         let task1 = tasks.get(0).unwrap();
 
         assert!(task.content_compare(task1));
@@ -62,7 +71,14 @@ mod cli {
         db.create_table_if_missing();
         cli_add_task(&db, task.clone());
 
-        let tasks = cli_get_tasks(&db, "#test".to_string(), false);
+        let tasks = cli_get_tasks(
+            &db,
+            "#test".to_string(),
+            false,
+            SortMode::NoSort,
+            SortOrder::ASC,
+        );
+
         let task1 = tasks.get(0).unwrap();
 
         assert!(task.content_compare(task1));
@@ -81,7 +97,13 @@ mod cli {
         db.create_table_if_missing();
         cli_add_task(&db, task.clone());
 
-        let tasks = cli_get_tasks(&db, ".18".to_string(), false);
+        let tasks = cli_get_tasks(
+            &db,
+            ".18".to_string(),
+            false,
+            SortMode::NoSort,
+            SortOrder::ASC,
+        );
         let task1 = tasks.get(0).unwrap();
 
         assert!(task.content_compare(task1));
@@ -104,7 +126,7 @@ mod cli {
 
         cli_fin_task(&db, id.to_string());
 
-        let tasks = cli_get_tasks(&db, id.to_string(), true);
+        let tasks = cli_get_tasks(&db, id.to_string(), true, SortMode::NoSort, SortOrder::ASC);
         let task1 = tasks.get(0).unwrap();
 
         task.finished = true;
@@ -125,7 +147,13 @@ mod cli {
         cli_add_task(&db, task.clone());
         cli_clear(&db);
 
-        let tasks = cli_get_tasks(&db, "list".to_string(), true);
+        let tasks = cli_get_tasks(
+            &db,
+            "list".to_string(),
+            true,
+            SortMode::NoSort,
+            SortOrder::ASC,
+        );
 
         assert_eq!(tasks.len(), 0);
 
@@ -147,7 +175,13 @@ mod cli {
 
         cli_del_task(&db, id.to_string());
 
-        let tasks = cli_get_tasks(&db, "#delete".to_string(), true);
+        let tasks = cli_get_tasks(
+            &db,
+            "#delete".to_string(),
+            true,
+            SortMode::NoSort,
+            SortOrder::ASC,
+        );
 
         assert_eq!(tasks.len(), 0);
 

@@ -5,6 +5,8 @@ use std::io::Write;
 use std::{env, fs::File};
 use types::{ExportType, Task};
 
+use crate::types::{SortMode, SortOrder};
+
 mod cli;
 mod db;
 mod types;
@@ -45,7 +47,10 @@ fn main() {
                     .visible_aliases(["ls", "l"])
                     .about("list tasks matching the given query")
                     .arg(arg!([QUERY]))
-                    .arg(Arg::new("sort_by").short('b').long("sort_by").help(
+                    .arg(Arg::new("sort_by").long("sort_by").help(
+                        "sort tasks by given param: (id, due, finished, title, priority, tag)",
+                    ))
+                    .arg(Arg::new("sort_order").long("sort_order").help(
                         "sort tasks by given param: (id, due, finished, title, priority, tag)",
                     ))
                     .arg(
@@ -84,10 +89,24 @@ fn main() {
         Some(("list", sub_matches)) => {
             let display_finished = sub_matches.get_flag("finished");
             let default_value = &String::from("list");
+            let sort_by = match sub_matches.get_one::<String>("sort_by") {
+                Some(e) => SortMode::from(&e[..]),
+                _ => SortMode::NoSort,
+            };
+            let sort_order = match sub_matches.get_one::<String>("sort_order") {
+                Some(e) => SortOrder::from(&e[..]),
+                _ => SortOrder::ASC,
+            };
             let query = sub_matches
                 .get_one::<String>("QUERY")
                 .unwrap_or(default_value);
-            let tasks = cli_get_tasks(&db, query.to_string(), display_finished);
+            let tasks = cli_get_tasks(
+                &db,
+                query.to_string(),
+                display_finished,
+                sort_by,
+                sort_order,
+            );
             for t in &tasks {
                 println!("{}", t);
             }
