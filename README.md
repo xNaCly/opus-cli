@@ -64,14 +64,14 @@ opus list 1
 opus ls 1
 opus l 1
 # sort list output by task property
-opus list --sort_by=id
-opus list --sort_by=due
-opus list --sort_by=finished
-opus list --sort_by=title
-opus list --sort_by=priority
-opus list --sort_by=tag
+opus list --sort-by=id
+opus list --sort-by=due
+opus list --sort-by=finished
+opus list --sort-by=title
+opus list --sort-by=priority
+opus list --sort-by=tag
 # sort desc and asc (default sort is asc)
-opus list --sort_by=id --sort_mode=desc
+opus list --sort-by=id --sort-order=desc
 # [2]: 'read c how to' (2022-10-17)
 # [1]: 'notion aufsetzen' (2022-10-18) #uni .1
 # --

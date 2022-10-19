@@ -47,10 +47,10 @@ fn main() {
                     .visible_aliases(["ls", "l"])
                     .about("list tasks matching the given query")
                     .arg(arg!([QUERY]))
-                    .arg(Arg::new("sort_by").long("sort_by").help(
+                    .arg(Arg::new("sort-by").long("sort-by").help(
                         "sort tasks by given param: (id, due, finished, title, priority, tag)",
                     ))
-                    .arg(Arg::new("sort_order").long("sort_order").help(
+                    .arg(Arg::new("sort-order").long("sort-order").help(
                         "sort direction: (asc, desc)",
                     ))
                     .arg(
@@ -89,11 +89,11 @@ fn main() {
         Some(("list", sub_matches)) => {
             let display_finished = sub_matches.get_flag("finished");
             let default_value = &String::from("list");
-            let sort_by = match sub_matches.get_one::<String>("sort_by") {
+            let sort_by = match sub_matches.get_one::<String>("sort-by") {
                 Some(e) => SortMode::from(&e[..]),
                 _ => SortMode::NoSort,
             };
-            let sort_order = match sub_matches.get_one::<String>("sort_order") {
+            let sort_order = match sub_matches.get_one::<String>("sort-order") {
                 Some(e) => SortOrder::from(&e[..]),
                 _ => SortOrder::ASC,
             };
