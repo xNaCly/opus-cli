@@ -2,7 +2,7 @@
 use rusqlite::{Connection, Row};
 
 use crate::{
-    types::{ExportType, Task},
+    types::{ExportType, SortDirection, SortMode, Task},
     util::create_dir_if_not_exist,
     util::get_db_path,
 };
@@ -54,6 +54,8 @@ impl Database {
         property: char,
         mut query: String,
         display_finished: bool,
+        sort_by: SortMode,
+        sort_direction: SortDirection,
     ) -> Vec<Task> {
         let mut sql_query = match property {
             '#' => GET_TASK_BY_TAG,
@@ -149,7 +151,13 @@ impl Database {
     }
 
     pub fn export(&self, export_type: &ExportType) -> String {
-        let tasks = self.get_tasks('l', "l".to_string(), true);
+        let tasks = self.get_tasks(
+            'l',
+            "l".to_string(),
+            true,
+            SortMode::NoSort,
+            SortDirection::ASC,
+        );
 
         let tasks = match export_type {
             ExportType::Json => {
