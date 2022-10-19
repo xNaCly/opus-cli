@@ -5,6 +5,8 @@ use std::io::Write;
 use std::{env, fs::File};
 use types::{ExportType, Task};
 
+use crate::types::{SortMode, SortOrder};
+
 mod cli;
 mod db;
 mod types;
@@ -14,64 +16,71 @@ mod tests;
 
 fn main() {
     // INFO: documentation clap: https://docs.rs/clap/latest/clap/_tutorial/index.html#subcommands
-    let commands = command!()
-        .about(crate_description!())
-        .author(crate_authors!("\n"))
-        .propagate_version(true)
-        .subcommand_required(true)
-        .arg_required_else_help(true)
-        .subcommand(
-            Command::new("add")
-                .visible_alias("a")
-                .about("create a new task")
-                .arg(arg!(<CONTENT>)),
-        )
-        .subcommand(
-            Command::new("delete")
-                .visible_aliases(["del", "d"])
-                .about("delete a task with the given id")
-                .arg(arg!(<ID>)),
-        )
-        .subcommand(Command::new("clear").about("remove all tasks from the database"))
-        .subcommand(
-            Command::new("finish")
-                .visible_aliases(["fin", "f"])
-                .about("mark the task with the given id as finished")
-                .arg(arg!(<ID>)),
-        )
-        .subcommand(
-            Command::new("list")
-                .visible_aliases(["ls", "l"])
-                .about("list tasks matching the given query")
-                .arg(arg!([QUERY]))
-                .arg(
-                    // INFO: documentation for flags: https://docs.rs/clap/latest/clap/_tutorial/index.html#flags
-                    Arg::new("finished")
-                        .short('f')
-                        .long("finished")
-                        .action(ArgAction::SetTrue)
-                        .help("displays tasks marked as finished"),
-                ),
-        )
-        .subcommand(
-            Command::new("export")
-                .about("export all tasks")
-                .arg(
-                    Arg::new("fileformat")
-                        .long("format")
-                        .short('f')
-                        .required(true)
-                        .help("select the export format: json or csv"),
-                )
-                .arg(
-                    Arg::new("filename")
-                        .long("output")
-                        .short('o')
-                        .required(true)
-                        .help("select the filename for the export"),
-                ),
-        )
-        .get_matches();
+    let commands =
+        command!()
+            .about(crate_description!())
+            .author(crate_authors!("\n"))
+            .propagate_version(true)
+            .subcommand_required(true)
+            .arg_required_else_help(true)
+            .subcommand(
+                Command::new("add")
+                    .visible_alias("a")
+                    .about("create a new task")
+                    .arg(arg!(<CONTENT>)),
+            )
+            .subcommand(
+                Command::new("delete")
+                    .visible_aliases(["del", "d"])
+                    .about("delete a task with the given id")
+                    .arg(arg!(<ID>)),
+            )
+            .subcommand(Command::new("clear").about("remove all tasks from the database"))
+            .subcommand(
+                Command::new("finish")
+                    .visible_aliases(["fin", "f"])
+                    .about("mark the task with the given id as finished")
+                    .arg(arg!(<ID>)),
+            )
+            .subcommand(
+                Command::new("list")
+                    .visible_aliases(["ls", "l"])
+                    .about("list tasks matching the given query")
+                    .arg(arg!([QUERY]))
+                    .arg(Arg::new("sort-by").long("sort-by").help(
+                        "sort tasks by given param: (id, due, finished, title, priority, tag)",
+                    ))
+                    .arg(Arg::new("sort-order").long("sort-order").help(
+                        "sort direction: (asc, desc)",
+                    ))
+                    .arg(
+                        // INFO: documentation for flags: https://docs.rs/clap/latest/clap/_tutorial/index.html#flags
+                        Arg::new("finished")
+                            .short('f')
+                            .long("finished")
+                            .action(ArgAction::SetTrue)
+                            .help("displays tasks marked as finished"),
+                    ),
+            )
+            .subcommand(
+                Command::new("export")
+                    .about("export all tasks")
+                    .arg(
+                        Arg::new("fileformat")
+                            .long("format")
+                            .short('f')
+                            .required(true)
+                            .help("select the export format: json or csv"),
+                    )
+                    .arg(
+                        Arg::new("filename")
+                            .long("output")
+                            .short('o')
+                            .required(true)
+                            .help("select the filename for the export"),
+                    ),
+            )
+            .get_matches();
 
     let db: Database = open_db();
     db.create_table_if_missing();
@@ -80,10 +89,24 @@ fn main() {
         Some(("list", sub_matches)) => {
             let display_finished = sub_matches.get_flag("finished");
             let default_value = &String::from("list");
+            let sort_by = match sub_matches.get_one::<String>("sort-by") {
+                Some(e) => SortMode::from(&e[..]),
+                _ => SortMode::NoSort,
+            };
+            let sort_order = match sub_matches.get_one::<String>("sort-order") {
+                Some(e) => SortOrder::from(&e[..]),
+                _ => SortOrder::ASC,
+            };
             let query = sub_matches
                 .get_one::<String>("QUERY")
                 .unwrap_or(default_value);
-            let tasks = cli_get_tasks(&db, query.to_string(), display_finished);
+            let tasks = cli_get_tasks(
+                &db,
+                query.to_string(),
+                display_finished,
+                sort_by,
+                sort_order,
+            );
             for t in &tasks {
                 println!("{}", t);
             }

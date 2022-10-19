@@ -2,7 +2,7 @@
 use rusqlite::{Connection, Row};
 
 use crate::{
-    types::{ExportType, Task},
+    types::{ExportType, SortMode, SortOrder, Task},
     util::create_dir_if_not_exist,
     util::get_db_path,
 };
@@ -54,6 +54,8 @@ impl Database {
         property: char,
         mut query: String,
         display_finished: bool,
+        sort_by: SortMode,
+        sort_order: SortOrder,
     ) -> Vec<Task> {
         let mut sql_query = match property {
             '#' => GET_TASK_BY_TAG,
@@ -62,15 +64,22 @@ impl Database {
                 unimplemented!("querying via date will be implemented in the future");
             }
             _ => GET_TASK_BY_ID,
-        };
+        }
+        .to_string();
 
         if query == "list" || query == "l" {
-            sql_query = GET_ALL_TASKS;
+            sql_query = GET_ALL_TASKS.to_string();
         }
+
+        sql_query = if sort_by != SortMode::NoSort {
+            format!("{} ORDER BY {} {}", sql_query, sort_by, sort_order)
+        } else {
+            sql_query
+        };
 
         let mut stmt = self
             .con
-            .prepare(sql_query)
+            .prepare(sql_query.as_str())
             .expect("Failed to prepare SQL statement in querying for tasks");
 
         if sql_query == GET_TASK_BY_PRIO {
@@ -149,7 +158,7 @@ impl Database {
     }
 
     pub fn export(&self, export_type: &ExportType) -> String {
-        let tasks = self.get_tasks('l', "l".to_string(), true);
+        let tasks = self.get_tasks('l', "l".to_string(), true, SortMode::NoSort, SortOrder::ASC);
 
         let tasks = match export_type {
             ExportType::Json => {
