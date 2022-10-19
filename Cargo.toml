@@ -1,6 +1,6 @@
 [package]
 name = "opus"
-version = "0.2.0-alpha"
+version = "0.2.0-alpha+experimental.ls-sorting"
 authors = ["xnacly <47723417+xNaCly@users.noreply.github.com>"]
 description = "Manage tasks with ease"
 edition = "2021"
