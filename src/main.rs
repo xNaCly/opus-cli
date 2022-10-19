@@ -51,7 +51,7 @@ fn main() {
                         "sort tasks by given param: (id, due, finished, title, priority, tag)",
                     ))
                     .arg(Arg::new("sort_order").long("sort_order").help(
-                        "sort tasks by given param: (id, due, finished, title, priority, tag)",
+                        "sort direction: (asc, desc)",
                     ))
                     .arg(
                         // INFO: documentation for flags: https://docs.rs/clap/latest/clap/_tutorial/index.html#flags
