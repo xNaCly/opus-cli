@@ -118,9 +118,9 @@ fn main() {
         }
         Some(("add", sub_matches)) => {
             let t: Task = Task::from(
-                *sub_matches
-                    .get_one::<&str>("CONTENT")
-                    .expect("Failure in parsing task"),
+                &sub_matches
+                    .get_one::<String>("CONTENT")
+                    .expect("Failure in parsing task")[..],
             );
 
             cli_add_task(&db, t);
