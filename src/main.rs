@@ -1,7 +1,7 @@
 use clap::{arg, command, crate_authors, crate_description, Arg, ArgAction, Command};
-use cli::{cli_add_task, cli_clear, cli_del_task, cli_export, cli_fin_task, cli_get_tasks};
+use cli::*;
 use db::{open_db, Database};
-use std::io::Write;
+use std::io::{prelude::*, BufReader, Write};
 use std::{env, fs::File};
 use types::{ExportType, Task};
 
@@ -44,9 +44,15 @@ fn main() {
             )
             .subcommand(
                 Command::new("import")
-                    .about("import tasks from a file")
+                    .about("import tasks from a file: \n\n csv format: \n\t title,tag,priority,due-date,finished")
                     // TODO: support: csv, tsv and json
-                    .arg(arg!(<FILENAME>)),
+                    .arg(
+                        Arg::new("file")
+                        .long("filename")
+                        .short('f')
+                        .required(true)
+                        .help("specify the file opus should read to import data")
+                    )
             )
             .subcommand(
                 Command::new("list")
@@ -187,6 +193,21 @@ fn main() {
             let data = cli_export(&db, &export_type);
             let mut file = File::create(filename).expect("Unable to export to file");
             write!(file, "{}", data).expect("Unable to write data to file");
+        }
+        Some(("import", sub_matches)) => {
+            let filename = sub_matches
+                .get_one::<String>("file")
+                .expect("Filename missing");
+
+            let file = File::open(filename).expect("Couldn't open given file");
+            let reader = BufReader::new(file);
+
+            let lines = reader
+                .lines()
+                .map(|x| x.expect("failed to map over lines of given file"))
+                .collect::<Vec<String>>();
+
+            let feedback = cli_import(&db, lines);
         }
         _ => (),
     }

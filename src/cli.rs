@@ -53,3 +53,10 @@ pub fn cli_clear(db: &Database) -> bool {
 pub fn cli_export(db: &Database, export_type: &ExportType) -> String {
     db.export(export_type)
 }
+
+pub fn cli_import(db: &Database, filecontent: Vec<String>) -> bool {
+    for l in filecontent {
+        println!("{}", l);
+    }
+    false
+}
