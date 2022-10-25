@@ -43,6 +43,12 @@ fn main() {
                     .arg(arg!(<ID>)),
             )
             .subcommand(
+                Command::new("import")
+                    .about("import tasks from a file")
+                    // TODO: support: csv, tsv and json
+                    .arg(arg!(<FILENAME>)),
+            )
+            .subcommand(
                 Command::new("list")
                     .visible_aliases(["ls", "l"])
                     .about("list tasks matching the given query")
